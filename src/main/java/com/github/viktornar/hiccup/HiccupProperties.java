@@ -15,6 +15,6 @@ public class HiccupProperties {
     @Setter
     public static class GameService {
         // Default
-        private String baseUrlForAPIv2 = "https://dragonsofmugloar.com/api/v2/game/start";
+        private String baseUrlForAPIv2 = "https://dragonsofmugloar.com";
     }
 }
