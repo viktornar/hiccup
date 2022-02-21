@@ -1,0 +1,3 @@
+hiccup:
+  gameService:
+    baseUrlForAPIv2: https://dragonsofmugloar.com/api/v2

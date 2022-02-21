@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "hiccup.gameService.baseUrlForAPIv2",
+      "type": "java.lang.String",
+      "description": "Base url for game service to be provided for client."
+  }
+] }
