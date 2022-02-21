@@ -32,7 +32,7 @@ public class DragonOfMugloarClientV2 implements BaseAPIV2Client {
     @Override
     public Game startGame() {
         var url = String.format("%s" + START_GAME_PATH, baseUrl);
-        return restTemplate.getForObject(url, Game.class);
+        return restTemplate.postForObject(url, null, Game.class);
     }
 
     @Override
