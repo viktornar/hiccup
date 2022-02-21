@@ -4,6 +4,7 @@ import com.github.viktornar.hiccup.dragon.dto.*;
 
 import java.util.List;
 
+@SuppressWarnings({"java:S1075"})
 public interface BaseAPIV2Client {
     String START_GAME_PATH = "/api/v2/game/start";
     String INVESTIGATION_PATH = "/api/v2/%s/investigate/reputation";
@@ -18,7 +19,7 @@ public interface BaseAPIV2Client {
 
     Reputation investigateReputation(String gameId);
 
-    List<Quest> getAllQuest(String gameId);
+    List<Quest> getAllQuests(String gameId);
 
     Reward trySolveQuest(String gameId, String adId);
 

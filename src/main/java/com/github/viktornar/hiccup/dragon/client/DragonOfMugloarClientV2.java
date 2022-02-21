@@ -42,7 +42,7 @@ public class DragonOfMugloarClientV2 implements BaseAPIV2Client {
     }
 
     @Override
-    public List<Quest> getAllQuest(String gameId) {
+    public List<Quest> getAllQuests(String gameId) {
         var url = String.format("%s" + ALL_QUEST_PATH, baseUrl, gameId);
         var quests = restTemplate.getForObject(url, Quest[].class);
         if (quests == null) {
