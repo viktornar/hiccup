@@ -1,4 +1,4 @@
-package com.github.viktornar.hiccup.dragons.client;
+package com.github.viktornar.hiccup.dragon.client;
 
 import com.github.viktornar.hiccup.HiccupProperties;
 import lombok.extern.slf4j.Slf4j;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class DragonOfMugloarClientV2 implements DragonOfMugloarClient {
+public class DragonOfMugloarClientV2 implements BaseAPIV2Client {
     private final String baseUrl;
 
     public DragonOfMugloarClientV2(HiccupProperties properties, RestTemplateBuilder restTemplateBuilder) {
