@@ -1,6 +1,6 @@
-package com.github.viktornar.hiccup.dragon.client;
+package com.github.viktornar.hiccup.game.client;
 
-import com.github.viktornar.hiccup.dragon.dto.*;
+import com.github.viktornar.hiccup.game.dto.*;
 
 import java.util.List;
 
