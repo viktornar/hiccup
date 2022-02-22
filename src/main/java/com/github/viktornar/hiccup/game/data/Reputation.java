@@ -1,4 +1,4 @@
-package com.github.viktornar.hiccup.game.dto;
+package com.github.viktornar.hiccup.game.data;
 
 import lombok.Data;
 

@@ -1,7 +1,7 @@
 package com.github.viktornar.hiccup.game.client;
 
 import com.github.viktornar.hiccup.HiccupProperties;
-import com.github.viktornar.hiccup.game.dto.*;
+import com.github.viktornar.hiccup.game.data.*;
 
 import java.util.Collections;
 

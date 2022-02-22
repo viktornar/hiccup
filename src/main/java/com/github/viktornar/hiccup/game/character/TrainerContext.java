@@ -1,6 +1,6 @@
 package com.github.viktornar.hiccup.game.character;
 
-import com.github.viktornar.hiccup.game.dto.Quest;
+import com.github.viktornar.hiccup.game.data.Quest;
 import lombok.Data;
 
 import java.util.Collections;

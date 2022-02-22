@@ -1,7 +1,7 @@
 package com.github.viktornar.hiccup.game.mapper;
 
-import com.github.viktornar.hiccup.game.dto.Game;
-import com.github.viktornar.hiccup.game.dto.Reward;
+import com.github.viktornar.hiccup.game.data.Game;
+import com.github.viktornar.hiccup.game.data.Reward;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

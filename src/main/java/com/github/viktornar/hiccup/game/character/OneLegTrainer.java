@@ -1,7 +1,7 @@
 package com.github.viktornar.hiccup.game.character;
 
 import com.github.viktornar.hiccup.game.client.APIClient;
-import com.github.viktornar.hiccup.game.dto.Reward;
+import com.github.viktornar.hiccup.game.data.Reward;
 import com.github.viktornar.hiccup.game.mapper.DtoToTrainerContextMapper;
 import com.github.viktornar.hiccup.game.type.Event;
 import lombok.extern.slf4j.Slf4j;
