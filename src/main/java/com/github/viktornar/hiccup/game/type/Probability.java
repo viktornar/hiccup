@@ -1,35 +1,34 @@
 package com.github.viktornar.hiccup.game.type;
 
-import lombok.Getter;
-
 @SuppressWarnings({ "java:S6205" })
 public enum Probability {
-    UNKNOWN(""),
-    LOW("Walk in the park"),
-    MEDIUM("Quite likely"),
-    HIGH("Sure thing"),
-    HIGHEST("Piece of cake");
+    UNKNOWN,
+    VERY_HARD,
+    HARD,
+    TRICKY,
+    NORMAL,
+    EASY,
+    VERY_EASY;
 
-    @Getter
-    private final String probabilityAsText;
-
-    Probability(String probabilityAsText) {
-        this.probabilityAsText = probabilityAsText;
-    }
-
-    static Probability of(String probabilityAsText) {
+    public static Probability of(String probabilityAsText) {
         switch (probabilityAsText) {
+            case "Hmm..." -> {
+                return Probability.VERY_HARD;
+            }
+            case "Risky" -> {
+                return Probability.HARD;
+            }
             case "Walk in the park" -> {
-                return Probability.LOW;
+                return Probability.TRICKY;
             }
             case "Quite likely" -> {
-                return Probability.MEDIUM;
+                return Probability.NORMAL;
             }
             case "Sure thing" -> {
-                return Probability.HIGH;
+                return Probability.EASY;
             }
             case "Piece of cake" -> {
-                return Probability.HIGHEST;
+                return Probability.VERY_EASY;
             }
             default -> {
                 return Probability.UNKNOWN;

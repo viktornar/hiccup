@@ -7,10 +7,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class ProbabilityTest {
     @Test
     void should_build_probability_from_text() {
-        assertEquals(Probability.UNKNOWN, Probability.of(Probability.UNKNOWN.getProbabilityAsText()));
-        assertEquals(Probability.LOW, Probability.of(Probability.LOW.getProbabilityAsText()));
-        assertEquals(Probability.MEDIUM, Probability.of(Probability.MEDIUM.getProbabilityAsText()));
-        assertEquals(Probability.HIGH, Probability.of(Probability.HIGH.getProbabilityAsText()));
-        assertEquals(Probability.HIGHEST, Probability.of(Probability.HIGHEST.getProbabilityAsText()));
+        assertEquals(Probability.UNKNOWN, Probability.of("Gamble"));
+        assertEquals(Probability.VERY_HARD, Probability.of("Hmm..."));
+        assertEquals(Probability.HARD, Probability.of("Risky"));
+        assertEquals(Probability.TRICKY, Probability.of("Walk in the park"));
+        assertEquals(Probability.NORMAL, Probability.of("Quite likely"));
+        assertEquals(Probability.EASY, Probability.of("Sure thing"));
+        assertEquals(Probability.VERY_EASY, Probability.of("Piece of cake"));
     }
 }

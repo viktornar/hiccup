@@ -1,6 +1,10 @@
 package com.github.viktornar.hiccup.game.character;
 
+import com.github.viktornar.hiccup.game.dto.Quest;
 import lombok.Data;
+
+import java.util.Collections;
+import java.util.List;
 
 @Data
 public class TrainerContext {
@@ -14,6 +18,7 @@ public class TrainerContext {
     private int state = 0;
     private int underworld = 0;
     private int highScore = 0;
+    private List<Quest> quests = Collections.emptyList();
 
     public void from(TrainerContext ctx) {
         gameId = ctx.gameId == null ? gameId : ctx.gameId;
@@ -26,5 +31,6 @@ public class TrainerContext {
         state = ctx.state == 0 ? state : ctx.state;
         underworld = ctx.underworld == 0 ? underworld : ctx.underworld;
         highScore = ctx.highScore == 0 ? highScore : ctx.highScore;
+        quests = ctx.quests == null ? quests : ctx.quests;
     }
 }
