@@ -8,7 +8,10 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(
-        properties = "hiccup.gameService.baseUrlForAPIv2: https://foo.bar"
+        properties = {
+                "hiccup.gameService.baseUrlForAPIv2=https://foo.bar",
+                "hiccup.runner.enabled=false"
+        }
 )
 @ActiveProfiles("test")
 class HiccupPropertiesTest {

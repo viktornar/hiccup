@@ -3,11 +3,10 @@ package com.github.viktornar.hiccup.game.type;
 public enum Event {
     IDLE,
     START,
-    GET_QUESTS,
-    SOLVE_QUEST,
+    GET_AND_SOLVE_QUEST,
     INVESTIGATE,
-    LIST_ITEMS,
-    BUY_ITEMS,
+    BUY_ITEM,
     BACK,
+    REGISTER,
     END
 }

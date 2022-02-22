@@ -27,11 +27,6 @@ public class TrainerActions<T, E> implements Consumer<E> {
             return this;
         }
 
-        public State<T, E> onExit(BiConsumer<T, State<T, E>> func) {
-            this.exit = func;
-            return this;
-        }
-
         private void enter(T context) throws Throwable {
             if (enter != null) {
                 enter.accept(context, this);
