@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class Reward {
-    private Boolean success;
+    private boolean success;
     private int lives;
     private int gold;
     private int score;

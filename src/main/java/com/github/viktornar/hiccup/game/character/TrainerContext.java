@@ -18,6 +18,7 @@ public class TrainerContext {
     private int state = 0;
     private int underworld = 0;
     private int highScore = 0;
+    private int expiresInCount = 0;
     private List<Quest> quests = Collections.emptyList();
 
     public void from(TrainerContext ctx) {
