@@ -1,6 +1,8 @@
 package com.github.viktornar.hiccup;
 
+import com.github.viktornar.hiccup.game.character.TrainerContext;
 import com.github.viktornar.hiccup.game.client.DragonOfMugloarClientV2;
+import com.github.viktornar.hiccup.game.character.TrainerActions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
