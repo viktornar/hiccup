@@ -3,6 +3,7 @@ package com.github.viktornar.hiccup.game.client;
 import com.github.viktornar.hiccup.HiccupProperties;
 import com.github.viktornar.hiccup.game.data.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +57,7 @@ public class DragonOfMugloarClientV2 implements APIClient {
         if (quests == null) {
             return Collections.emptyList();
         }
-        return List.of(quests);
+        return new ArrayList<>(List.of(quests));
     }
 
     @Override
@@ -72,7 +73,7 @@ public class DragonOfMugloarClientV2 implements APIClient {
         if (items == null) {
             return Collections.emptyList();
         }
-        return List.of(items);
+        return new ArrayList<>(List.of(items));
     }
 
     @Override

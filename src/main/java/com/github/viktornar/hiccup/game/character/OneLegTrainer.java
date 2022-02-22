@@ -43,7 +43,7 @@ public class OneLegTrainer implements Trainer {
     public void startAdventure() {
         IDLE.target(Event.START, START);
 
-        // While adventurer have what to do, try to train dragon
+        // Adventurer is busy by doing dragon training
         do {
             doTraining();
         } while (!IDLE.equals(oneLegTrainerActions.getState()));
