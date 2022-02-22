@@ -51,7 +51,11 @@ public class OneLegTrainer implements Trainer {
         initGame();
         initQuests();
         initInvestigate();
-        initSimpleQuestsSolver();
+        initEasyQuestsSolver();
+
+        // init
+        // initBuyItem();
+        //
 
         // Start the game
         oneLegTrainerActions.accept(TrainerEvent.START);
@@ -113,10 +117,10 @@ public class OneLegTrainer implements Trainer {
         }).target(TrainerEvent.SOLVE_EASY_QUESTS, SOLVE_SIMPLE_QUESTS);
     }
 
-    private void initSimpleQuestsSolver() {
+    private void initEasyQuestsSolver() {
         SOLVE_SIMPLE_QUESTS.onTransition((ctx, state) -> {
             log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_EASY_QUESTS.name(), ctx);
-            var quest = QuestUtil.getEasiestQuest(ctx);
+            var quest = QuestsUtil.getEasiestQuest(ctx);
             quest.ifPresent(value -> {
                 Reward reward = apiClient.trySolveQuest(ctx.getGameId(), value.getAdId());
                 var newQuest = ctx.getQuests();
