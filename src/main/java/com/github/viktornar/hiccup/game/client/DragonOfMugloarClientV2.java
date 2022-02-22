@@ -14,7 +14,15 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class DragonOfMugloarClientV2 implements BaseAPIV2Client {
+@SuppressWarnings({ "java:S1075", "java:S3457" })
+public class DragonOfMugloarClientV2 implements APIClient {
+    public static final String START_GAME_PATH = "/api/v2/game/start";
+    public static final String INVESTIGATION_PATH = "/api/v2/%s/investigate/reputation";
+    public static final String ALL_QUEST_PATH = "/api/v2/%s/messages";
+    public static final String SOLVE_QUEST_PATH = "/api/v2/%s/solve/%s";
+    public static final String ITEMS_LIST_IN_SHOP_PATH = "/api/v2/%s/shop";
+    public static final String BUY_ITEM_IN_SHOP_PATH = "/api/v2/%s/shop/buy/%s";
+
     private final String baseUrl;
     private final RestTemplate restTemplate;
 
