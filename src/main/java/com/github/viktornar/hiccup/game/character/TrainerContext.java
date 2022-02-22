@@ -5,13 +5,12 @@ import lombok.Data;
 @Data
 public class TrainerContext {
     private String gameId;
-    private Integer level = 0;
-    private Integer gold = 0;
-    private Integer score = 0;
-    private Integer turn = 0;
-    private Integer people = 0;
-    private Integer state = 0;
-    private Integer underworld = 0;
-    private Boolean gameEnd = true;
-    private Integer maxTurn = 0;
+    private int level = 0;
+    private int gold = 0;
+    private int score = 0;
+    private int turn = 0;
+    private int people = 0;
+    private int state = 0;
+    private int underworld = 0;
+    private boolean gameEnd = true;
 }

@@ -5,10 +5,10 @@ import lombok.Data;
 @Data
 public class Reward {
     private Boolean success;
-    private Integer lives;
-    private Integer gold;
-    private Integer score;
-    private Integer highScore;
-    private Integer turn;
+    private int lives;
+    private int gold;
+    private int score;
+    private int highScore;
+    private int turn;
     private String message;
 }

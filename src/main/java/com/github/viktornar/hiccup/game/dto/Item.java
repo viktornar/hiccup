@@ -6,5 +6,5 @@ import lombok.Data;
 public class Item {
     private String id;
     private String name;
-    private Integer cost;
+    private int cost;
 }

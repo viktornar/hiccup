@@ -5,8 +5,8 @@ import lombok.Data;
 @Data
 public class Basket {
     private String shoppingSuccess;
-    private Integer gold;
-    private Integer lives;
-    private Integer level;
-    private Integer turn;
+    private int gold;
+    private int lives;
+    private int level;
+    private int turn;
 }

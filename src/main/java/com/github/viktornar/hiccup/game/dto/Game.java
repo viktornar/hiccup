@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class Game {
     private String gameId;
-    private Integer lives;
-    private Integer gold;
-    private Integer level;
-    private Integer score;
-    private Integer highScore;
+    private int lives;
+    private int gold;
+    private int level;
+    private int score;
+    private int highScore;
 }

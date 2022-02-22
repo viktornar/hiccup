@@ -6,7 +6,7 @@ import lombok.Data;
 public class Quest {
     private String adId;
     private String message;
-    private Integer reward;
-    private Integer expiresIn;
+    private int reward;
+    private int expiresIn;
     private String probability;
 }
