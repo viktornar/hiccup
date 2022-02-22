@@ -13,7 +13,7 @@ public class OneLegTrainer implements Trainer {
 
     private final APIClient apiClient;
     private final TrainerContext context;
-    TrainerActions<TrainerContext, Event> oneLegTrainerActions;
+    private final TrainerActions<TrainerContext, Event> oneLegTrainerActions;
 
     private static final TrainerActions.State<TrainerContext, Event> IDLE =
             new TrainerActions.State<>(Event.IDLE.name());
