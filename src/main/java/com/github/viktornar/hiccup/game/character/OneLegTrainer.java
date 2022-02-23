@@ -54,8 +54,9 @@ public class OneLegTrainer implements Trainer {
 
     @Override
     public void startAdventure(int maxTurn) {
-        IDLE.target(TrainerEvent.START, START);
         this.maxTurn = Math.min(maxTurn, MAX_TURN);
+        // Register flows that can have tangled connection between each other :D
+        IDLE.target(TrainerEvent.START, START);
         initGame();
         initQuests();
         initInvestigate();
@@ -63,13 +64,12 @@ public class OneLegTrainer implements Trainer {
         initGambleQuestsSolver();
         initDangerousQuestsSolver();
         initBuyItem();
-
         // Adventurer is busy by doing dragon training :)
         do {
             doTraining();
         } while (!IDLE.equals(oneLegTrainerActions.getState()));
-        // Register flows that can have tangled connection between each other :D
         // Start the game
+        log.info("Starting train a dragon");
         oneLegTrainerActions.accept(TrainerEvent.START);
     }
 
@@ -80,7 +80,7 @@ public class OneLegTrainer implements Trainer {
 
     protected void doTraining() {
         START.onTransition((ctx, state) -> {
-            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.START.name(), ctx);
+            log.debug(STEP_CONTEXT_LOG_TEXT, TrainerEvent.START.name(), ctx);
 
             if (shouldEndGame.test(ctx)) {
                 log.info("Max turns limit reached or trainer was killed. Terminating adventure.");
@@ -94,11 +94,12 @@ public class OneLegTrainer implements Trainer {
 
     protected void initGame() {
         REGISTER.onTransition((ctx, state) -> {
-            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.REGISTER.name(), ctx);
+            log.debug(STEP_CONTEXT_LOG_TEXT, TrainerEvent.REGISTER.name(), ctx);
             if (!StringUtils.hasText(ctx.getGameId())) {
                 var game = apiClient.startGame();
                 var newCtx = DataToTrainerContextMapper.INSTANCE.gameToContext(game);
                 ctx.from(newCtx);
+                log.info("Registering a new game with id: {}", game.getGameId());
             }
             // I'm brave trainer. Let's start solving quests.
             oneLegTrainerActions.accept(TrainerEvent.GET_QUESTS);
@@ -107,12 +108,22 @@ public class OneLegTrainer implements Trainer {
 
     private void initInvestigate() {
         INVESTIGATE.onTransition((ctx, state) -> {
-            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.INVESTIGATE.name(), ctx);
-            log.info("Increase turn by one. Current turn {}", ctx.getTurn());
+            log.debug(STEP_CONTEXT_LOG_TEXT, TrainerEvent.INVESTIGATE.name(), ctx);
+            log.info("Increased turn by one. Current turn {}", ctx.getTurn());
             ctx.setTurn(ctx.getTurn() + 1);
             var reputation = apiClient.investigateReputation(ctx.getGameId());
             var newCtx = DataToTrainerContextMapper.INSTANCE.reputationToContext(reputation);
             ctx.from(newCtx);
+            log.info("Trainer level: {{}}, score: {{}}, lives: {{}}, people: {{}}, state: {{}}, underworld: {{}} " +
+                            "- after turn {{}}",
+                    ctx.getLevel(),
+                    ctx.getScore(),
+                    ctx.getLives(),
+                    ctx.getPeople(),
+                    ctx.getState(),
+                    ctx.getUnderworld(),
+                    ctx.getTurn()
+            );
             // Start over again
             oneLegTrainerActions.accept(TrainerEvent.START);
         }).target(TrainerEvent.START, START);
@@ -120,10 +131,11 @@ public class OneLegTrainer implements Trainer {
 
     private void initQuests() {
         GET_QUESTS.onTransition((ctx, state) -> {
-            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.GET_QUESTS.name(), ctx);
+            log.info("Receiving quests");
+            log.debug(STEP_CONTEXT_LOG_TEXT, TrainerEvent.GET_QUESTS.name(), ctx);
             var quests = apiClient.getAllQuests(ctx.getGameId());
-            log.info("Receive quests to solve:");
-            quests.forEach(q -> log.info("\tquest: {}", q));
+            log.debug("Received quests to solve:");
+            quests.forEach(q -> log.debug("\tquest: {}", q));
             ctx.setQuests(quests);
             // Try to solve only easy quests
             oneLegTrainerActions.accept(TrainerEvent.SOLVE_SAFE_QUESTS);
@@ -132,13 +144,14 @@ public class OneLegTrainer implements Trainer {
 
     protected void initSafeQuestsSolver() {
         SOLVE_SAFE_QUESTS.onTransition((ctx, state) -> {
-            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_SAFE_QUESTS.name(), ctx);
+            log.debug(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_SAFE_QUESTS.name(), ctx);
             var quest = QuestsUtil.getSafeQuest(ctx);
             if (quest.isPresent()) {
                 log.info("Will try to solve simple quest: {}", quest.get());
                 tryToSolveAndUpdateCtx(ctx, quest.get());
                 oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
             } else {
+                log.info("No simple quest to solve. Going to try my luck.");
                 SOLVE_SAFE_QUESTS.target(TrainerEvent.SOLVE_GAMBLE_QUESTS, SOLVE_GAMBLE_QUESTS);
                 oneLegTrainerActions.accept(TrainerEvent.SOLVE_GAMBLE_QUESTS);
             }
@@ -147,13 +160,14 @@ public class OneLegTrainer implements Trainer {
 
     protected void initGambleQuestsSolver() {
         SOLVE_GAMBLE_QUESTS.onTransition((ctx, state) -> {
-            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_GAMBLE_QUESTS.name(), ctx);
+            log.debug(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_GAMBLE_QUESTS.name(), ctx);
             var quest = QuestsUtil.getGambleQuest(ctx);
             if (quest.isPresent()) {
                 log.info("Will try to solve quest: {}", quest.get());
                 tryToSolveAndUpdateCtx(ctx, quest.get());
                 oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
             } else {
+                log.info("Seems that need to start a real man work.");
                 SOLVE_GAMBLE_QUESTS.target(TrainerEvent.SOLVE_DANGEROUS_QUESTS, SOLVE_DANGEROUS_QUESTS);
                 oneLegTrainerActions.accept(TrainerEvent.SOLVE_DANGEROUS_QUESTS);
             }
@@ -162,16 +176,16 @@ public class OneLegTrainer implements Trainer {
 
     protected void initDangerousQuestsSolver() {
         SOLVE_DANGEROUS_QUESTS.onTransition((ctx, state) -> {
-            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_DANGEROUS_QUESTS.name(), ctx);
+            log.debug(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_DANGEROUS_QUESTS.name(), ctx);
             var quest = QuestsUtil.getDangerousQuest(ctx);
             if (quest.isPresent()) {
-                log.info("Will try to solve dangerous quest: {}", quest.get());
+                log.debug("Will try to solve dangerous quest: {}", quest.get());
                 tryToSolveAndUpdateCtx(ctx, quest.get());
             }
 
             if (QuestsUtil.checkIfNoMoreQuestsToSolve(ctx)) {
                 ctx.setGameOver(true);
-
+                log.info("No more quests possible to solve. I'm not suicide, so retire");
             }
             // After quest trainer can be injured, so he need to heal him before finishing training
             oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
@@ -186,6 +200,7 @@ public class OneLegTrainer implements Trainer {
             healPotion.ifPresent(i -> {
                 // Try to heal yourself as soon as possible
                 if (ctx.getLives() < MAX_LIVES) {
+                    log.info("Will try to heal myself.");
                     var basket = apiClient.tryPurchaseItem(ctx.getGameId(), i.getId());
                     var newCtx = DataToTrainerContextMapper.INSTANCE.basketToContext(basket);
                     ctx.from(newCtx);
@@ -195,8 +210,10 @@ public class OneLegTrainer implements Trainer {
             otherItem.ifPresent(i -> {
                 // Prefer to have at least 50 gold to have a possibility to heal myself
                 if (ctx.getGold() - i.getCost() >= HEAL_POTION_PRICE) {
+                    log.info("Will try to buy some nice stuff for myself.");
                     var basket = apiClient.tryPurchaseItem(ctx.getGameId(), i.getId());
                     if (basket.isShoppingSuccess()) {
+                        log.info("Bought some item: {{}}", i);
                         ctx.getPurchasedItems().add(i);
                     }
                     var newCtx = DataToTrainerContextMapper.INSTANCE.basketToContext(basket);

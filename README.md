@@ -14,7 +14,7 @@ Project use gradle for build and other repetitive tasks. To build project you ne
 If you want to run application you can either:
 
 ```shell
-./gradlew bootRun -maxTurn 100
+./gradlew bootRun --args="-maxTurn 100"
 ```
 
 or:

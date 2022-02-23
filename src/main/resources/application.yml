@@ -1,3 +1,11 @@
 hiccup:
   gameService:
     baseUrlForAPIv2: https://dragonsofmugloar.com
+
+logging:
+  level:
+    root: INFO
+    com:
+      github:
+        viktornar:
+          hiccup: INFO

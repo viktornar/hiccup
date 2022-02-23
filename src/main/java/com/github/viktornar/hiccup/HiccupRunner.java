@@ -49,7 +49,7 @@ public class HiccupRunner implements CommandLineRunner {
 
             oneLegTrainer.startAdventure(maxTurnNumber);
             var trainerContext = oneLegTrainer.getContext();
-            log.info("Final state of trainer after finish dragon train adventure: {}", trainerContext);
+            log.debug("Final state of trainer after finish dragon train adventure: {}", trainerContext);
 
             System.out.println("-----------------------------------------------");
             if (trainerContext.getLives() == 0) {
