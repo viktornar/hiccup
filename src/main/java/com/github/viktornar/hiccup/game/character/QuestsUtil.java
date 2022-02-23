@@ -60,6 +60,7 @@ public class QuestsUtil {
     }
 
     public static boolean checkIfNoMoreQuestsToSolve(TrainerContext ctx) {
-        return ctx.getQuests().stream().allMatch(q -> ProbabilityType.IMPOSSIBLE.equals(ProbabilityType.of(q.getProbability())));
+        return ctx.getQuests().stream()
+                .allMatch(q -> ProbabilityType.IMPOSSIBLE.equals(ProbabilityType.of(q.getProbability())));
     }
 }

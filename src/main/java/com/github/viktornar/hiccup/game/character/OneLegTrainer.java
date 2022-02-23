@@ -12,7 +12,7 @@ import org.springframework.util.StringUtils;
 @Component
 @Slf4j
 public class OneLegTrainer implements Trainer {
-    public static final int MAX_TURN = 100;
+    public static final int MAX_TURN = 150;
     public static final int HEAL_POTION_PRICE = 50;
     public static final int MAX_LIVES = 3;
     public static final int NO_LIVES = 0;
@@ -55,7 +55,7 @@ public class OneLegTrainer implements Trainer {
     @Override
     public void startAdventure(int maxTurn) {
         IDLE.target(TrainerEvent.START, START);
-        this.maxTurn = maxTurn;
+        this.maxTurn = Math.min(maxTurn, MAX_TURN);
         initGame();
         initQuests();
         initInvestigate();

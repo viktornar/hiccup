@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class TrainerActions<T extends TrainerContext, E> implements Consumer<E> {
@@ -80,9 +79,8 @@ public class TrainerActions<T extends TrainerContext, E> implements Consumer<E> 
             }
         }
 
-        public State<T, E> target(E event, State<T, E> state) {
+        public void target(E event, State<T, E> state) {
             transitions.put(event, state);
-            return this;
         }
 
         public State<T, E> next(E event) {
