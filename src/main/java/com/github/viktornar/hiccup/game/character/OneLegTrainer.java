@@ -25,6 +25,10 @@ public class OneLegTrainer implements Trainer {
             new TrainerActions.State<>();
     private static final TrainerActions.State<TrainerContext, TrainerEvent> SOLVE_SAFE_QUESTS =
             new TrainerActions.State<>();
+    private static final TrainerActions.State<TrainerContext, TrainerEvent> BUY_ITEM =
+            new TrainerActions.State<>();
+    public static final int HEAL_POTION_PRICE = 50;
+    public static final int MAX_LIVES = 3;
 
     private final APIClient apiClient;
     private final TrainerContext context;
@@ -44,20 +48,16 @@ public class OneLegTrainer implements Trainer {
     public void startAdventure(int maxTurn) {
         IDLE.target(TrainerEvent.START, START);
         this.maxTurn = maxTurn;
-
         // Adventurer is busy by doing dragon training :)
         do {
             doTraining();
         } while (!IDLE.equals(oneLegTrainerActions.getState()));
-
         // Register flows that can have tangled connection between each other :D
         initGame();
         initQuests();
         initInvestigate();
         initSafeQuestsSolver();
-        // TODO: Implement flows
-        // initBuyItem();
-
+        initBuyItem();
         // Start the game
         oneLegTrainerActions.accept(TrainerEvent.START);
     }
@@ -99,6 +99,9 @@ public class OneLegTrainer implements Trainer {
             log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.INVESTIGATE.name(), ctx);
             log.info("Increase turn by one. Current turn {}", ctx.getTurn());
             ctx.setTurn(ctx.getTurn() + 1);
+            var reputation = apiClient.investigateReputation(ctx.getGameId());
+            var newCtx = DtoToTrainerContextMapper.INSTANCE.reputationToContext(reputation);
+            ctx.from(newCtx);
             ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
             // Start over again
             oneLegTrainerActions.accept(TrainerEvent.START);
@@ -135,7 +138,30 @@ public class OneLegTrainer implements Trainer {
                 // Increase expire count for existing quests in list
                 ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
             });
-            oneLegTrainerActions.accept(TrainerEvent.INVESTIGATE);
+            oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
+        }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
+    }
+
+    private void initBuyItem() {
+        BUY_ITEM.onTransition((ctx, state) -> {
+            // Maybe should I put this to cache since this list not changing?
+            var items = apiClient.getAllItems(ctx.getGameId());
+            var healPotion = PurchaseUtil.getHealPotion(ctx, items);
+            healPotion.ifPresent(i -> {
+                // Try to heal yourself as soon as possible
+                if (ctx.getLives() < MAX_LIVES) {
+                    apiClient.tryPurchaseItem(ctx.getGameId(), i.getId());
+                }
+            });
+            var otherItem = PurchaseUtil.getAffordableItems(ctx, items);
+            otherItem.ifPresent(i -> {
+                // Prefer to have at least 50 gold to have a possibility to heal myself
+                if (ctx.getGold() - i.getCost() >= HEAL_POTION_PRICE) {
+                    apiClient.tryPurchaseItem(ctx.getGameId(), i.getId());
+                }
+            });
+            // Increase expire count for existing quests in list
+            ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
         }).target(TrainerEvent.INVESTIGATE, INVESTIGATE);
     }
 }

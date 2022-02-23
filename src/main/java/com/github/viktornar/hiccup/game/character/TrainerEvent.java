@@ -9,5 +9,6 @@ public enum TrainerEvent {
     SOLVE_DANGEROUS_QUESTS,
     INVESTIGATE,
     BUY_ITEM,
+    COUNT,
     END
 }

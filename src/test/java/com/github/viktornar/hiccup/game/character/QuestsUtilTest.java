@@ -1,7 +1,7 @@
 package com.github.viktornar.hiccup.game.character;
 
 import com.github.viktornar.hiccup.game.data.Quest;
-import com.github.viktornar.hiccup.game.type.Probability;
+import com.github.viktornar.hiccup.game.type.ProbabilityType;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -40,10 +40,10 @@ class QuestsUtilTest {
         assertTrue(quest.isPresent());
 
         quest.ifPresent(q -> {
-            assertTrue(Probability.SURE_THING.equals(Probability.of(q.getProbability())) ||
-                  Probability.PIECE_OF_CAKE.equals(Probability.of(q.getProbability())));
+            assertTrue(ProbabilityType.SURE_THING.equals(ProbabilityType.of(q.getProbability())) ||
+                  ProbabilityType.PIECE_OF_CAKE.equals(ProbabilityType.of(q.getProbability())));
 
-            assertNotEquals(Probability.DANGEROUS, Probability.of(q.getProbability()));
+            assertNotEquals(ProbabilityType.DANGEROUS, ProbabilityType.of(q.getProbability()));
         });
     }
 

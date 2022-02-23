@@ -1,8 +1,10 @@
 package com.github.viktornar.hiccup.game.character;
 
+import com.github.viktornar.hiccup.game.data.Item;
 import com.github.viktornar.hiccup.game.data.Quest;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,6 +22,7 @@ public class TrainerContext {
     private int highScore = 0;
     private int expiresInCount = 0;
     private List<Quest> quests = Collections.emptyList();
+    private List<Item> purchasedItems = new ArrayList<>();
 
     public void from(TrainerContext ctx) {
         gameId = ctx.gameId == null ? gameId : ctx.gameId;

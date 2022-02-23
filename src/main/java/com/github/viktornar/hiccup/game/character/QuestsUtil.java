@@ -1,7 +1,7 @@
 package com.github.viktornar.hiccup.game.character;
 
 import com.github.viktornar.hiccup.game.data.Quest;
-import com.github.viktornar.hiccup.game.type.Probability;
+import com.github.viktornar.hiccup.game.type.ProbabilityType;
 
 import java.util.Comparator;
 import java.util.Optional;
@@ -14,10 +14,10 @@ public class QuestsUtil {
         return ctx.getQuests().stream()
                 .filter(q -> ctx.getExpiresInCount() < q.getExpiresIn())
                 .filter(q ->
-                        Probability.PIECE_OF_CAKE.equals(Probability.of(q.getProbability())) ||
-                                Probability.SURE_THING.equals(Probability.of(q.getProbability())) ||
-                                Probability.QUITE_LIKELY.equals(Probability.of(q.getProbability())) ||
-                                Probability.WALK_IN_PARK.equals(Probability.of(q.getProbability())))
+                        ProbabilityType.PIECE_OF_CAKE.equals(ProbabilityType.of(q.getProbability())) ||
+                                ProbabilityType.SURE_THING.equals(ProbabilityType.of(q.getProbability())) ||
+                                ProbabilityType.QUITE_LIKELY.equals(ProbabilityType.of(q.getProbability())) ||
+                                ProbabilityType.WALK_IN_PARK.equals(ProbabilityType.of(q.getProbability())))
                 .max(Comparator.comparingInt(Quest::getReward));
     }
 }

@@ -2,6 +2,7 @@ package com.github.viktornar.hiccup.game.mapper;
 
 import com.github.viktornar.hiccup.game.character.TrainerContext;
 import com.github.viktornar.hiccup.game.data.Game;
+import com.github.viktornar.hiccup.game.data.Reputation;
 import com.github.viktornar.hiccup.game.data.Reward;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -26,4 +27,9 @@ public interface DtoToTrainerContextMapper {
     @Mapping(source = "highScore", target = "highScore")
     @Mapping(source = "turn", target = "turn")
     TrainerContext rewardToContext(Reward reward);
+
+    @Mapping(source = "people", target = "people")
+    @Mapping(source = "state", target = "state")
+    @Mapping(source = "underworld", target = "underworld")
+    TrainerContext reputationToContext(Reputation reputation);
 }
