@@ -1,12 +1,10 @@
 package com.github.viktornar.hiccup.game.character;
 
-import com.github.viktornar.hiccup.game.data.Basket;
 import com.github.viktornar.hiccup.game.data.Item;
 import com.github.viktornar.hiccup.game.data.Quest;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -21,9 +19,8 @@ public class TrainerContext {
     private int state = 0;
     private int underworld = 0;
     private int highScore = 0;
-    private int expiresInCount = 0;
     private boolean gameOver = false;
-    private List<Quest> quests = Collections.emptyList();
+    private List<Quest> quests = new ArrayList<>();
     private List<Item> purchasedItems = new ArrayList<>();
 
     public void from(TrainerContext ctx) {
@@ -37,6 +34,5 @@ public class TrainerContext {
         state = ctx.state == 0 ? state : ctx.state;
         underworld = ctx.underworld == 0 ? underworld : ctx.underworld;
         highScore = ctx.highScore == 0 ? highScore : ctx.highScore;
-        quests = ctx.quests == null ? quests : ctx.quests;
     }
 }

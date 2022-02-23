@@ -10,6 +10,7 @@ public enum ProbabilityType {
     HMM,
     GAMBLE,
     PLAYING_WITH_FIRE,
+    RATHER_DETRIMENTAL,
     PIECE_OF_CAKE;
 
     public static ProbabilityType of(String probabilityAsText) {
@@ -20,7 +21,7 @@ public enum ProbabilityType {
             case "Gamble" -> {
                 return ProbabilityType.GAMBLE;
             }
-            case "Hmm..." -> {
+            case "Hmm...." -> {
                 return ProbabilityType.HMM;
             }
             case "Playing with fire" -> {

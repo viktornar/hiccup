@@ -16,23 +16,26 @@ class QuestsUtilTest {
         var quests = new ArrayList<Quest>() {{
             add(new Quest() {{
                 setProbability("Risky");
+                setMessage("help");
                 setExpiresIn(4);
             }});
             add(new Quest() {{
                 setProbability("Piece of cake");
+                setMessage("help");
                 setExpiresIn(3);
             }});
             add(new Quest() {{
                 setProbability("Sure thing");
+                setMessage("help");
                 setExpiresIn(3);
             }});
             add(new Quest() {{
                 setProbability("Sure thing");
+                setMessage("help");
                 setExpiresIn(2);
             }});
         }};
 
-        context.setExpiresInCount(2);
         context.setQuests(quests);
 
         var quest = QuestsUtil.getSafeQuest(context);
@@ -53,33 +56,13 @@ class QuestsUtilTest {
         var quests = new ArrayList<Quest>() {{
             add(new Quest() {{
                 setProbability("Risky");
+                setMessage("help");
                 setExpiresIn(4);
             }});
         }};
 
-        context.setExpiresInCount(2);
         context.setQuests(quests);
-
         var quest = QuestsUtil.getSafeQuest(context);
-
-        assertFalse(quest.isPresent());
-    }
-
-    @Test
-    void should_not_get_if_expired() {
-        var context = new TrainerContext();
-        var quests = new ArrayList<Quest>() {{
-            add(new Quest() {{
-                setProbability("Sure thing");
-                setExpiresIn(2);
-            }});
-        }};
-
-        context.setExpiresInCount(3); // or 2 as well
-        context.setQuests(quests);
-
-        var quest = QuestsUtil.getSafeQuest(context);
-
         assertFalse(quest.isPresent());
     }
 
@@ -90,25 +73,26 @@ class QuestsUtilTest {
             add(new Quest() {{
                 setProbability("Sure thing");
                 setExpiresIn(4);
+                setMessage("help");
                 setReward(12);
             }});
             add(new Quest() {{
                 setProbability("Sure thing");
+                setMessage("help");
                 setExpiresIn(4);
                 setReward(23);
             }});
             add(new Quest() {{
                 setProbability("Sure thing");
+                setMessage("help");
                 setExpiresIn(4);
                 setReward(2);
             }});
         }};
 
-        context.setExpiresInCount(2);
         context.setQuests(quests);
 
         var quest = QuestsUtil.getSafeQuest(context);
-
         assertTrue(quest.isPresent());
         quest.ifPresent(q -> assertEquals(23, q.getReward()));
     }

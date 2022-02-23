@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class TrainerActions<T extends TrainerContext, E> implements Consumer<E> {
@@ -32,7 +33,8 @@ public class TrainerActions<T extends TrainerContext, E> implements Consumer<E> 
                             state = next;
                             next.enter(ctx);
                         } else {
-                            log.info("Invalid event: {}", event);
+                            // Probably can be ignored
+                            log.warn("Invalid event: {}", event);
                         }
                     })
                     // Log error

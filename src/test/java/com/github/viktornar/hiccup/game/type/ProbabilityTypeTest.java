@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class ProbabilityTypeTest {
     @Test
     void should_build_probability_from_text() {
-        assertEquals(ProbabilityType.IMPOSSIBLE, ProbabilityType.of("Gamble"));
-        assertEquals(ProbabilityType.IMPOSSIBLE, ProbabilityType.of("Risky"));
+        assertEquals(ProbabilityType.GAMBLE, ProbabilityType.of("Gamble"));
+        assertEquals(ProbabilityType.RISKY, ProbabilityType.of("Risky"));
         assertEquals(ProbabilityType.WALK_IN_PARK, ProbabilityType.of("Walk in the park"));
         assertEquals(ProbabilityType.QUITE_LIKELY, ProbabilityType.of("Quite likely"));
         assertEquals(ProbabilityType.SURE_THING, ProbabilityType.of("Sure thing"));

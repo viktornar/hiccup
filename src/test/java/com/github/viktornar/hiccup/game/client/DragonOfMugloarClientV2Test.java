@@ -139,7 +139,7 @@ class DragonOfMugloarClientV2Test {
     @Test
     void should_buy_item() {
         var basket = new Basket() {{
-           setShoppingSuccess("Thanks good sir");
+           setShoppingSuccess(true);
            setGold(5);
            setLives(3);
            setLevel(3);

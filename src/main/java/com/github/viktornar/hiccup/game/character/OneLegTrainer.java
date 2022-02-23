@@ -56,11 +56,6 @@ public class OneLegTrainer implements Trainer {
     public void startAdventure(int maxTurn) {
         IDLE.target(TrainerEvent.START, START);
         this.maxTurn = maxTurn;
-        // Adventurer is busy by doing dragon training :)
-        do {
-            doTraining();
-        } while (!IDLE.equals(oneLegTrainerActions.getState()));
-        // Register flows that can have tangled connection between each other :D
         initGame();
         initQuests();
         initInvestigate();
@@ -68,6 +63,12 @@ public class OneLegTrainer implements Trainer {
         initGambleQuestsSolver();
         initDangerousQuestsSolver();
         initBuyItem();
+
+        // Adventurer is busy by doing dragon training :)
+        do {
+            doTraining();
+        } while (!IDLE.equals(oneLegTrainerActions.getState()));
+        // Register flows that can have tangled connection between each other :D
         // Start the game
         oneLegTrainerActions.accept(TrainerEvent.START);
     }
@@ -112,7 +113,6 @@ public class OneLegTrainer implements Trainer {
             var reputation = apiClient.investigateReputation(ctx.getGameId());
             var newCtx = DataToTrainerContextMapper.INSTANCE.reputationToContext(reputation);
             ctx.from(newCtx);
-            ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
             // Start over again
             oneLegTrainerActions.accept(TrainerEvent.START);
         }).target(TrainerEvent.START, START);
@@ -125,7 +125,6 @@ public class OneLegTrainer implements Trainer {
             log.info("Receive quests to solve:");
             quests.forEach(q -> log.info("\tquest: {}", q));
             ctx.setQuests(quests);
-            ctx.setExpiresInCount(0);
             // Try to solve only easy quests
             oneLegTrainerActions.accept(TrainerEvent.SOLVE_SAFE_QUESTS);
         }).target(TrainerEvent.SOLVE_SAFE_QUESTS, SOLVE_SAFE_QUESTS);
@@ -138,12 +137,10 @@ public class OneLegTrainer implements Trainer {
             if (quest.isPresent()) {
                 log.info("Will try to solve simple quest: {}", quest.get());
                 tryToSolveAndUpdateCtx(ctx, quest.get());
-                // Increase expire count for existing quests in list
-                ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
                 oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
             } else {
-                SOLVE_SAFE_QUESTS.target(TrainerEvent.SOLVE_DANGEROUS_QUESTS, SOLVE_DANGEROUS_QUESTS);
-                oneLegTrainerActions.accept(TrainerEvent.SOLVE_DANGEROUS_QUESTS);
+                SOLVE_SAFE_QUESTS.target(TrainerEvent.SOLVE_GAMBLE_QUESTS, SOLVE_GAMBLE_QUESTS);
+                oneLegTrainerActions.accept(TrainerEvent.SOLVE_GAMBLE_QUESTS);
             }
         }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
     }
@@ -155,16 +152,10 @@ public class OneLegTrainer implements Trainer {
             if (quest.isPresent()) {
                 log.info("Will try to solve quest: {}", quest.get());
                 tryToSolveAndUpdateCtx(ctx, quest.get());
-                // Increase expire count for existing quests in list
-                ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
-            }
-
-            if (QuestsUtil.checkIfNoMoreQuestsToSolve(ctx)) {
-                ctx.setGameOver(true);
-                SOLVE_GAMBLE_QUESTS.target(TrainerEvent.INVESTIGATE, INVESTIGATE);
-                oneLegTrainerActions.accept(TrainerEvent.INVESTIGATE);
-            } else {
                 oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
+            } else {
+                SOLVE_GAMBLE_QUESTS.target(TrainerEvent.SOLVE_DANGEROUS_QUESTS, SOLVE_DANGEROUS_QUESTS);
+                oneLegTrainerActions.accept(TrainerEvent.SOLVE_DANGEROUS_QUESTS);
             }
         }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
     }
@@ -176,18 +167,14 @@ public class OneLegTrainer implements Trainer {
             if (quest.isPresent()) {
                 log.info("Will try to solve dangerous quest: {}", quest.get());
                 tryToSolveAndUpdateCtx(ctx, quest.get());
-                // Increase expire count for existing quests in list
-                ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
-                oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
             }
 
             if (QuestsUtil.checkIfNoMoreQuestsToSolve(ctx)) {
                 ctx.setGameOver(true);
-                SOLVE_GAMBLE_QUESTS.target(TrainerEvent.INVESTIGATE, INVESTIGATE);
-                oneLegTrainerActions.accept(TrainerEvent.INVESTIGATE);
-            } else {
-                oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
+
             }
+            // After quest trainer can be injured, so he need to heal him before finishing training
+            oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
         }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
     }
 
@@ -216,8 +203,6 @@ public class OneLegTrainer implements Trainer {
                     ctx.from(newCtx);
                 }
             });
-            // Increase expire count for existing quests in list
-            ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
             oneLegTrainerActions.accept(TrainerEvent.INVESTIGATE);
         }).target(TrainerEvent.INVESTIGATE, INVESTIGATE);
     }
@@ -225,11 +210,11 @@ public class OneLegTrainer implements Trainer {
     private void tryToSolveAndUpdateCtx(TrainerContext ctx, Quest quest) {
         Reward reward = apiClient.trySolveQuest(ctx.getGameId(), quest.getAdId());
         log.info("Reward (or not) from quest: {}", reward);
-        var newQuest = ctx.getQuests();
+        var newQuests = ctx.getQuests();
         // Remove quest. It doesn't exist anymore for trainer
-        newQuest.remove(quest);
+        newQuests.remove(quest);
         var newCtx = DataToTrainerContextMapper.INSTANCE.rewardToContext(reward);
-        newCtx.setQuests(newQuest);
+        newCtx.getQuests().addAll(newQuests);
         ctx.from(newCtx);
     }
 }

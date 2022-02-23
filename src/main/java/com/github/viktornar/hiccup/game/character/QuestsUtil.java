@@ -4,22 +4,34 @@ import com.github.viktornar.hiccup.game.data.Quest;
 import com.github.viktornar.hiccup.game.type.ProbabilityType;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
 public class QuestsUtil {
-    private static final Predicate<Quest> goodQuestPredicate = q ->
-            q.getMessage().contains("Rescue") ||
-                    q.getMessage().contains("Create") ||
-                    q.getMessage().contains("Escort") ||
-                    q.getMessage().contains("Help defending");
+    private static final Predicate<Quest> goodQuestPredicate = q -> {
+        var goodTerms = List.of(
+                "sold", "clean", "write", "rescue", "create", "escort", "delivery", "intruders", "help");
+        var badTerms = List.of("steal", "kill");
+
+        var anyGoodTerm = goodTerms.stream()
+                .map(t -> q.getMessage().toLowerCase().contains(t))
+                .filter(b -> b).findAny().orElse(false);
+
+        var anyBadTerm = badTerms.stream()
+                .map(t -> q.getMessage().toLowerCase().contains(t))
+                .filter(b -> b).findAny().orElse(false);
+
+        return anyGoodTerm && !anyBadTerm;
+    };
+
 
     private QuestsUtil() {
     }
 
     public static Optional<Quest> getSafeQuest(TrainerContext ctx) {
         return ctx.getQuests().stream()
-                .filter(q -> ctx.getExpiresInCount() < q.getExpiresIn())
+                .sorted(Comparator.comparingInt(Quest::getExpiresIn))
                 .filter(q ->
                         ProbabilityType.PIECE_OF_CAKE.equals(ProbabilityType.of(q.getProbability())) ||
                                 ProbabilityType.SURE_THING.equals(ProbabilityType.of(q.getProbability())) ||
@@ -31,16 +43,16 @@ public class QuestsUtil {
 
     public static Optional<Quest> getDangerousQuest(TrainerContext ctx) {
         return ctx.getQuests().stream()
-                .filter(q -> ctx.getExpiresInCount() < q.getExpiresIn())
+                .sorted(Comparator.comparingInt(Quest::getExpiresIn))
                 .filter(q -> ProbabilityType.RISKY.equals(ProbabilityType.of(q.getProbability())) ||
-                        ProbabilityType.PLAYING_WITH_FIRE.equals(ProbabilityType.of(q.getProbability())))
+                        ProbabilityType.PLAYING_WITH_FIRE.equals(ProbabilityType.of(q.getProbability())) ||
+                        ProbabilityType.RATHER_DETRIMENTAL.equals(ProbabilityType.of(q.getProbability())))
                 .filter(goodQuestPredicate)
                 .max(Comparator.comparingInt(Quest::getReward));
     }
 
     public static Optional<Quest> getGambleQuest(TrainerContext ctx) {
         return ctx.getQuests().stream()
-                .filter(q -> ctx.getExpiresInCount() < q.getExpiresIn())
                 .filter(q -> ProbabilityType.GAMBLE.equals(ProbabilityType.of(q.getProbability())) ||
                         ProbabilityType.HMM.equals(ProbabilityType.of(q.getProbability())))
                 .filter(goodQuestPredicate)
