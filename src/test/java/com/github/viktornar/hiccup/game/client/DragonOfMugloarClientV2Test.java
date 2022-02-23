@@ -90,7 +90,7 @@ class DragonOfMugloarClientV2Test {
         when(restTemplate.getForObject(
                 "https://dragonsofmugloar.com/api/v2/ZwU2VPGj/messages",
                 Quest[].class)
-        ).thenReturn(new Quest[]{ quest });
+        ).thenReturn(new Quest[]{quest});
 
         var response = dragonOfMugloarClientV2.getAllQuests("ZwU2VPGj");
         assertEquals(quests, response);
@@ -130,7 +130,7 @@ class DragonOfMugloarClientV2Test {
         when(restTemplate.getForObject(
                 "https://dragonsofmugloar.com/api/v2/ZwU2VPGj/shop",
                 Item[].class)
-        ).thenReturn(new Item[]{ item });
+        ).thenReturn(new Item[]{item});
 
         var response = dragonOfMugloarClientV2.getAllItems("ZwU2VPGj");
         assertEquals(items, response);
@@ -139,11 +139,11 @@ class DragonOfMugloarClientV2Test {
     @Test
     void should_buy_item() {
         var basket = new Basket() {{
-           setShoppingSuccess(true);
-           setGold(5);
-           setLives(3);
-           setLevel(3);
-           setTurn(3);
+            setShoppingSuccess(true);
+            setGold(5);
+            setLives(3);
+            setLevel(3);
+            setTurn(3);
         }};
 
         when(restTemplate.postForObject(
@@ -152,7 +152,7 @@ class DragonOfMugloarClientV2Test {
                 Basket.class)
         ).thenReturn(basket);
 
-        var response = dragonOfMugloarClientV2.tryPurchaseItem("ZwU2VPGj","5CGAJ6D1");
+        var response = dragonOfMugloarClientV2.tryPurchaseItem("ZwU2VPGj", "5CGAJ6D1");
         assertEquals(basket, response);
     }
 }

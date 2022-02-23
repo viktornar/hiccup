@@ -1,13 +1,14 @@
 package com.github.viktornar.hiccup.game.mapper;
 
+import com.github.viktornar.hiccup.game.data.Basket;
 import com.github.viktornar.hiccup.game.data.Game;
+import com.github.viktornar.hiccup.game.data.Reputation;
 import com.github.viktornar.hiccup.game.data.Reward;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DataToTrainerContextMapperTest {
-
     @Test
     void should_map_game_to_context() {
         var game = new Game() {{
@@ -44,5 +45,36 @@ class DataToTrainerContextMapperTest {
         assertEquals(reward.getGold(), ctx.getGold());
         assertEquals(reward.getLives(), ctx.getLives());
         assertEquals(reward.getTurn(), ctx.getTurn());
+    }
+
+    @Test
+    void should_map_basket_to_context() {
+        var basket = new Basket() {{
+            setGold(30);
+            setLives(3);
+            setTurn(6);
+            setTurn(5);
+        }};
+
+        var ctx = DataToTrainerContextMapper.INSTANCE.basketToContext(basket);
+
+        assertEquals(basket.getGold(), ctx.getGold());
+        assertEquals(basket.getLives(), ctx.getLives());
+        assertEquals(basket.getTurn(), ctx.getTurn());
+    }
+
+    @Test
+    void should_map_reputation_to_ctx() {
+        var reputation = new Reputation() {{
+            setPeople(3);
+            setState(1);
+            setUnderworld(5);
+        }};
+
+        var ctx = DataToTrainerContextMapper.INSTANCE.reputationToContext(reputation);
+
+        assertEquals(reputation.getPeople(), ctx.getPeople());
+        assertEquals(reputation.getState(), ctx.getState());
+        assertEquals(reputation.getUnderworld(), ctx.getUnderworld());
     }
 }
