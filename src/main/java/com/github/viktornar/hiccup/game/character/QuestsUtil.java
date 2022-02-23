@@ -5,8 +5,15 @@ import com.github.viktornar.hiccup.game.type.ProbabilityType;
 
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class QuestsUtil {
+    private static final Predicate<Quest> goodQuestPredicate = q ->
+            q.getMessage().contains("Rescue") ||
+                    q.getMessage().contains("Create") ||
+                    q.getMessage().contains("Escort") ||
+                    q.getMessage().contains("Help defending");
+
     private QuestsUtil() {
     }
 
@@ -18,6 +25,7 @@ public class QuestsUtil {
                                 ProbabilityType.SURE_THING.equals(ProbabilityType.of(q.getProbability())) ||
                                 ProbabilityType.QUITE_LIKELY.equals(ProbabilityType.of(q.getProbability())) ||
                                 ProbabilityType.WALK_IN_PARK.equals(ProbabilityType.of(q.getProbability())))
+                .filter(goodQuestPredicate)
                 .max(Comparator.comparingInt(Quest::getReward));
     }
 
@@ -26,13 +34,15 @@ public class QuestsUtil {
                 .filter(q -> ctx.getExpiresInCount() < q.getExpiresIn())
                 .filter(q -> ProbabilityType.RISKY.equals(ProbabilityType.of(q.getProbability())) ||
                         ProbabilityType.PLAYING_WITH_FIRE.equals(ProbabilityType.of(q.getProbability())))
+                .filter(goodQuestPredicate)
                 .max(Comparator.comparingInt(Quest::getReward));
     }
 
     public static Optional<Quest> getImpossibleQuest(TrainerContext ctx) {
         return ctx.getQuests().stream()
                 .filter(q -> ctx.getExpiresInCount() < q.getExpiresIn())
-                .filter(q -> ProbabilityType.IMPOSSIBLE.equals(ProbabilityType.of(q.getProbability())))
+                .filter(q -> ProbabilityType.GAMBLE.equals(ProbabilityType.of(q.getProbability())))
+                .filter(goodQuestPredicate)
                 .max(Comparator.comparingInt(Quest::getReward));
     }
 }

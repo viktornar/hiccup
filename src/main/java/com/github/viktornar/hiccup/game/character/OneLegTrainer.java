@@ -31,7 +31,7 @@ public class OneLegTrainer implements Trainer {
             new TrainerActions.State<>();
     private static final TrainerActions.State<TrainerContext, TrainerEvent> SOLVE_DANGEROUS_QUESTS =
             new TrainerActions.State<>();
-    private static final TrainerActions.State<TrainerContext, TrainerEvent> SOLVE_IMPOSSIBLE_QUESTS =
+    private static final TrainerActions.State<TrainerContext, TrainerEvent> SOLVE_GAMBLE_QUESTS =
             new TrainerActions.State<>();
     private static final TrainerActions.State<TrainerContext, TrainerEvent> BUY_ITEM =
             new TrainerActions.State<>();
@@ -66,8 +66,7 @@ public class OneLegTrainer implements Trainer {
         initInvestigate();
         initSafeQuestsSolver();
         initDangerousQuestsSolver();
-        // Init suicide :D
-        initImpossibleQuestsSolver();
+        initGambleQuestsSolver();
         initBuyItem();
         // Start the game
         oneLegTrainerActions.accept(TrainerEvent.START);
@@ -136,8 +135,8 @@ public class OneLegTrainer implements Trainer {
         SOLVE_SAFE_QUESTS.onTransition((ctx, state) -> {
             log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_SAFE_QUESTS.name(), ctx);
             var quest = QuestsUtil.getSafeQuest(ctx);
-            log.info("Will try to solve simple quest: {}", quest);
             if (quest.isPresent()) {
+                log.info("Will try to solve simple quest: {}", quest.get());
                 tryToSolveAndUpdateCtx(ctx, quest.get());
                 // Increase expire count for existing quests in list
                 ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
@@ -153,31 +152,30 @@ public class OneLegTrainer implements Trainer {
         SOLVE_DANGEROUS_QUESTS.onTransition((ctx, state) -> {
             log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_DANGEROUS_QUESTS.name(), ctx);
             var quest = QuestsUtil.getDangerousQuest(ctx);
-            log.info("Will try to solve dangerous quest: {}", quest);
             if (quest.isPresent()) {
+                log.info("Will try to solve dangerous quest: {}", quest.get());
                 tryToSolveAndUpdateCtx(ctx, quest.get());
                 // Increase expire count for existing quests in list
                 ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
                 oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
             } else {
-                SOLVE_DANGEROUS_QUESTS.target(TrainerEvent.SOLVE_IMPOSSIBLE_QUESTS, SOLVE_IMPOSSIBLE_QUESTS);
-                oneLegTrainerActions.accept(TrainerEvent.SOLVE_IMPOSSIBLE_QUESTS);
+                SOLVE_DANGEROUS_QUESTS.target(TrainerEvent.SOLVE_GAMBLE_QUESTS, SOLVE_GAMBLE_QUESTS);
+                oneLegTrainerActions.accept(TrainerEvent.SOLVE_GAMBLE_QUESTS);
             }
         }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
     }
 
-    protected void initImpossibleQuestsSolver() {
-        SOLVE_IMPOSSIBLE_QUESTS.onTransition((ctx, state) -> {
-            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_IMPOSSIBLE_QUESTS.name(), ctx);
+    protected void initGambleQuestsSolver() {
+        SOLVE_GAMBLE_QUESTS.onTransition((ctx, state) -> {
+            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_GAMBLE_QUESTS.name(), ctx);
             var quest = QuestsUtil.getImpossibleQuest(ctx);
             quest.ifPresent(q -> {
+                log.info("Will try to solve quest: {}", q);
                 tryToSolveAndUpdateCtx(ctx, q);
                 // Increase expire count for existing quests in list
                 ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
-
             });
             oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
-            log.info("Will try to solve quest: {}", quest);
         }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
     }
 

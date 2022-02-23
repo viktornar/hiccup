@@ -7,6 +7,8 @@ public enum ProbabilityType {
     QUITE_LIKELY,
     SURE_THING,
     RISKY,
+    HMM,
+    GAMBLE,
     PLAYING_WITH_FIRE,
     PIECE_OF_CAKE;
 
@@ -14,6 +16,12 @@ public enum ProbabilityType {
         switch (probabilityAsText) {
             case "Risky" -> {
                 return ProbabilityType.RISKY;
+            }
+            case "Gamble" -> {
+                return ProbabilityType.GAMBLE;
+            }
+            case "Hmm..." -> {
+                return ProbabilityType.HMM;
             }
             case "Playing with fire" -> {
                 return ProbabilityType.PLAYING_WITH_FIRE;
