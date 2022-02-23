@@ -1,5 +1,6 @@
 package com.github.viktornar.hiccup.game.character;
 
+import com.github.viktornar.hiccup.game.data.Basket;
 import com.github.viktornar.hiccup.game.data.Item;
 import com.github.viktornar.hiccup.game.data.Quest;
 import lombok.Data;

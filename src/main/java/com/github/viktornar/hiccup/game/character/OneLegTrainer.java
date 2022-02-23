@@ -1,8 +1,9 @@
 package com.github.viktornar.hiccup.game.character;
 
 import com.github.viktornar.hiccup.game.client.APIClient;
+import com.github.viktornar.hiccup.game.data.Quest;
 import com.github.viktornar.hiccup.game.data.Reward;
-import com.github.viktornar.hiccup.game.mapper.DtoToTrainerContextMapper;
+import com.github.viktornar.hiccup.game.mapper.DataToTrainerContextMapper;
 import io.reactivex.rxjava3.functions.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,8 @@ public class OneLegTrainer implements Trainer {
     private static final TrainerActions.State<TrainerContext, TrainerEvent> GET_QUESTS =
             new TrainerActions.State<>();
     private static final TrainerActions.State<TrainerContext, TrainerEvent> SOLVE_SAFE_QUESTS =
+            new TrainerActions.State<>();
+    private static final TrainerActions.State<TrainerContext, TrainerEvent> SOLVE_DANGEROUS_QUESTS =
             new TrainerActions.State<>();
     private static final TrainerActions.State<TrainerContext, TrainerEvent> SOLVE_IMPOSSIBLE_QUESTS =
             new TrainerActions.State<>();
@@ -62,6 +65,8 @@ public class OneLegTrainer implements Trainer {
         initQuests();
         initInvestigate();
         initSafeQuestsSolver();
+        initDangerousQuestsSolver();
+        // Init suicide :D
         initImpossibleQuestsSolver();
         initBuyItem();
         // Start the game
@@ -92,7 +97,7 @@ public class OneLegTrainer implements Trainer {
             log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.REGISTER.name(), ctx);
             if (!StringUtils.hasText(ctx.getGameId())) {
                 var game = apiClient.startGame();
-                var newCtx = DtoToTrainerContextMapper.INSTANCE.gameToContext(game);
+                var newCtx = DataToTrainerContextMapper.INSTANCE.gameToContext(game);
                 ctx.from(newCtx);
             }
             // I'm brave trainer. Let's start solving quests.
@@ -106,7 +111,7 @@ public class OneLegTrainer implements Trainer {
             log.info("Increase turn by one. Current turn {}", ctx.getTurn());
             ctx.setTurn(ctx.getTurn() + 1);
             var reputation = apiClient.investigateReputation(ctx.getGameId());
-            var newCtx = DtoToTrainerContextMapper.INSTANCE.reputationToContext(reputation);
+            var newCtx = DataToTrainerContextMapper.INSTANCE.reputationToContext(reputation);
             ctx.from(newCtx);
             ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
             // Start over again
@@ -131,21 +136,31 @@ public class OneLegTrainer implements Trainer {
         SOLVE_SAFE_QUESTS.onTransition((ctx, state) -> {
             log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_SAFE_QUESTS.name(), ctx);
             var quest = QuestsUtil.getSafeQuest(ctx);
-            log.info("Will try to solve quest: {}", quest);
+            log.info("Will try to solve simple quest: {}", quest);
             if (quest.isPresent()) {
-                Reward reward = apiClient.trySolveQuest(ctx.getGameId(), quest.get().getAdId());
-                log.info("Reward (or not) from quest: {}", reward);
-                var newQuest = ctx.getQuests();
-                // Remove quest. It doesn't exist anymore for trainer
-                newQuest.remove(quest.get());
-                var newCtx = DtoToTrainerContextMapper.INSTANCE.rewardToContext(reward);
-                newCtx.setQuests(newQuest);
-                ctx.from(newCtx);
+                tryToSolveAndUpdateCtx(ctx, quest.get());
                 // Increase expire count for existing quests in list
                 ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
                 oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
             } else {
-                SOLVE_SAFE_QUESTS.target(TrainerEvent.SOLVE_IMPOSSIBLE_QUESTS, SOLVE_IMPOSSIBLE_QUESTS);
+                SOLVE_SAFE_QUESTS.target(TrainerEvent.SOLVE_DANGEROUS_QUESTS, SOLVE_DANGEROUS_QUESTS);
+                oneLegTrainerActions.accept(TrainerEvent.SOLVE_DANGEROUS_QUESTS);
+            }
+        }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
+    }
+
+    protected void initDangerousQuestsSolver() {
+        SOLVE_DANGEROUS_QUESTS.onTransition((ctx, state) -> {
+            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_DANGEROUS_QUESTS.name(), ctx);
+            var quest = QuestsUtil.getDangerousQuest(ctx);
+            log.info("Will try to solve dangerous quest: {}", quest);
+            if (quest.isPresent()) {
+                tryToSolveAndUpdateCtx(ctx, quest.get());
+                // Increase expire count for existing quests in list
+                ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
+                oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
+            } else {
+                SOLVE_DANGEROUS_QUESTS.target(TrainerEvent.SOLVE_IMPOSSIBLE_QUESTS, SOLVE_IMPOSSIBLE_QUESTS);
                 oneLegTrainerActions.accept(TrainerEvent.SOLVE_IMPOSSIBLE_QUESTS);
             }
         }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
@@ -156,14 +171,7 @@ public class OneLegTrainer implements Trainer {
             log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_IMPOSSIBLE_QUESTS.name(), ctx);
             var quest = QuestsUtil.getImpossibleQuest(ctx);
             quest.ifPresent(q -> {
-                Reward reward = apiClient.trySolveQuest(ctx.getGameId(), q.getAdId());
-                log.info("Reward (or not) from quest: {}", reward);
-                var newQuest = ctx.getQuests();
-                // Remove quest. It doesn't exist anymore for trainer
-                newQuest.remove(q);
-                var newCtx = DtoToTrainerContextMapper.INSTANCE.rewardToContext(reward);
-                newCtx.setQuests(newQuest);
-                ctx.from(newCtx);
+                tryToSolveAndUpdateCtx(ctx, q);
                 // Increase expire count for existing quests in list
                 ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
 
@@ -181,19 +189,37 @@ public class OneLegTrainer implements Trainer {
             healPotion.ifPresent(i -> {
                 // Try to heal yourself as soon as possible
                 if (ctx.getLives() < MAX_LIVES) {
-                    apiClient.tryPurchaseItem(ctx.getGameId(), i.getId());
+                    var basket = apiClient.tryPurchaseItem(ctx.getGameId(), i.getId());
+                    var newCtx = DataToTrainerContextMapper.INSTANCE.basketToContext(basket);
+                    ctx.from(newCtx);
                 }
             });
             var otherItem = PurchaseUtil.getAffordableItems(ctx, items);
             otherItem.ifPresent(i -> {
                 // Prefer to have at least 50 gold to have a possibility to heal myself
                 if (ctx.getGold() - i.getCost() >= HEAL_POTION_PRICE) {
-                    apiClient.tryPurchaseItem(ctx.getGameId(), i.getId());
+                    var basket = apiClient.tryPurchaseItem(ctx.getGameId(), i.getId());
+                    if (basket.isShoppingSuccess()) {
+                        ctx.getPurchasedItems().add(i);
+                    }
+                    var newCtx = DataToTrainerContextMapper.INSTANCE.basketToContext(basket);
+                    ctx.from(newCtx);
                 }
             });
             // Increase expire count for existing quests in list
             ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
             oneLegTrainerActions.accept(TrainerEvent.INVESTIGATE);
         }).target(TrainerEvent.INVESTIGATE, INVESTIGATE);
+    }
+
+    private void tryToSolveAndUpdateCtx(TrainerContext ctx, Quest quest) {
+        Reward reward = apiClient.trySolveQuest(ctx.getGameId(), quest.getAdId());
+        log.info("Reward (or not) from quest: {}", reward);
+        var newQuest = ctx.getQuests();
+        // Remove quest. It doesn't exist anymore for trainer
+        newQuest.remove(quest);
+        var newCtx = DataToTrainerContextMapper.INSTANCE.rewardToContext(reward);
+        newCtx.setQuests(newQuest);
+        ctx.from(newCtx);
     }
 }

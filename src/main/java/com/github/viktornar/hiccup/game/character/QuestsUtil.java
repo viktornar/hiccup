@@ -21,6 +21,14 @@ public class QuestsUtil {
                 .max(Comparator.comparingInt(Quest::getReward));
     }
 
+    public static Optional<Quest> getDangerousQuest(TrainerContext ctx) {
+        return ctx.getQuests().stream()
+                .filter(q -> ctx.getExpiresInCount() < q.getExpiresIn())
+                .filter(q -> ProbabilityType.RISKY.equals(ProbabilityType.of(q.getProbability())) ||
+                        ProbabilityType.PLAYING_WITH_FIRE.equals(ProbabilityType.of(q.getProbability())))
+                .max(Comparator.comparingInt(Quest::getReward));
+    }
+
     public static Optional<Quest> getImpossibleQuest(TrainerContext ctx) {
         return ctx.getQuests().stream()
                 .filter(q -> ctx.getExpiresInCount() < q.getExpiresIn())

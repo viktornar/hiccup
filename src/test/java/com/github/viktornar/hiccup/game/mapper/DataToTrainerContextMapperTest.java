@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DtoToTrainerContextMapperTest {
+class DataToTrainerContextMapperTest {
 
     @Test
     void should_map_game_to_context() {
@@ -19,7 +19,7 @@ class DtoToTrainerContextMapperTest {
             setLives(3);
         }};
 
-        var ctx = DtoToTrainerContextMapper.INSTANCE.gameToContext(game);
+        var ctx = DataToTrainerContextMapper.INSTANCE.gameToContext(game);
 
         assertEquals(game.getGameId(), ctx.getGameId());
         assertEquals(game.getGold(), ctx.getGold());
@@ -39,7 +39,7 @@ class DtoToTrainerContextMapperTest {
             setMessage("You successfully solved the mission!");
         }};
 
-        var ctx = DtoToTrainerContextMapper.INSTANCE.rewardToContext(reward);
+        var ctx = DataToTrainerContextMapper.INSTANCE.rewardToContext(reward);
 
         assertEquals(reward.getGold(), ctx.getGold());
         assertEquals(reward.getLives(), ctx.getLives());

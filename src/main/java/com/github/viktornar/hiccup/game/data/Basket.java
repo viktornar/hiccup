@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class Basket {
-    private String shoppingSuccess;
+    private boolean shoppingSuccess;
     private int gold;
     private int lives;
     private int level;
