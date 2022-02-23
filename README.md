@@ -5,7 +5,7 @@ The application is named in honor of the main character from **How to train drag
 
 ## Getting Started
 
-Project use gradle for build and other repetitive tasks. To build project you need to exexute:
+Project use gradle for build and other repetitive tasks. To build project you need to execute:
 
 ```shell
 ./gradlew build
