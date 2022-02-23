@@ -142,7 +142,7 @@ public class OneLegTrainer implements Trainer {
         }).target(TrainerEvent.SOLVE_SAFE_QUESTS, SOLVE_SAFE_QUESTS);
     }
 
-    protected void initSafeQuestsSolver() {
+    private void initSafeQuestsSolver() {
         SOLVE_SAFE_QUESTS.onTransition((ctx, state) -> {
             log.debug(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_SAFE_QUESTS.name(), ctx);
             var quest = QuestsUtil.getSafeQuest(ctx);
@@ -158,7 +158,7 @@ public class OneLegTrainer implements Trainer {
         }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
     }
 
-    protected void initGambleQuestsSolver() {
+    private void initGambleQuestsSolver() {
         SOLVE_GAMBLE_QUESTS.onTransition((ctx, state) -> {
             log.debug(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_GAMBLE_QUESTS.name(), ctx);
             var quest = QuestsUtil.getGambleQuest(ctx);
@@ -174,7 +174,7 @@ public class OneLegTrainer implements Trainer {
         }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
     }
 
-    protected void initDangerousQuestsSolver() {
+    private void initDangerousQuestsSolver() {
         SOLVE_DANGEROUS_QUESTS.onTransition((ctx, state) -> {
             log.debug(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_DANGEROUS_QUESTS.name(), ctx);
             var quest = QuestsUtil.getDangerousQuest(ctx);
@@ -192,7 +192,7 @@ public class OneLegTrainer implements Trainer {
         }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
     }
 
-    protected void initBuyItem() {
+    private void initBuyItem() {
         BUY_ITEM.onTransition((ctx, state) -> {
             // Maybe should I put this to cache since this list not changing?
             var items = apiClient.getAllItems(ctx.getGameId());
