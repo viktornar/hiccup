@@ -51,17 +51,17 @@ logging:
           hiccup: INFO
 ```
 
-Depending on log level you can see more or less information in console. So if you specify **DEBUG** instead of **INFO** you will be able to see more details about what happening inside application. If you do not wan;t to see any infromation related to log, but only want to see end result, you can specify **NONE**
+Depending on log level you can see more or less information in console. So if you specify **DEBUG** instead of **INFO** you will be able to see more details about what happening inside application. If you do not wan't to see any infromation related to log, but only want to see end result, you can specify **NONE**
 
 ## What was used?
 
-Under the hood I decided to use spring boot since it supports DI, web client, and it is even possible to build to native (experimental feature on spring).
+Under the hood I decided to use spring boot since it supports DI, web client, and it is even possible to do native build (experimental feature of spring).
 
 I have added only basic dependencies from spring that needed to work with IoC and web client.
 
 I have decided to use state machine. Most of the existing solution are quite big and would be too much for such kind of task. I decided to implement some kind of state machine in RxJava (wanted to try this awesome library). At the end I have quite flexible state machine with possibility to redefine default flow on transition stage. At the end it seems that solution is also too complicated, but at least it is not difficult to test all flow.
 
-For data mapping from one data (reward, basket, game) class into another (trainer context) I'm using map struct. This library let to simply such data flow between data classes.
+For data mapping from one data (reward, basket, game) class into another (trainer context) I'm using map struct. This library let to simplify such data flow between data classes.
 
 At the end I was able to reach level 15 with around 3810 score in best case. On average, I'm always able to reach level 15 with around 2500 score, but I believe that it can be improved, but I need to know what kind of logic is under the hood in game engine.
 
@@ -73,7 +73,7 @@ It would be interesting to implement decision tree for solving this game, but I 
 
 ## Development
 
-I'm using unit tests,  check style and sonar to ensure code quality.
+I'm using unit tests,  check style and sonar to ensure code quality and gradle for build and dependency management.
 
 To run tests:
 
@@ -92,6 +92,12 @@ To run sonar:
 ```shell
 docker-compose up -d -f ./src/main/docker/sonar.yml
 ./gradlew sonarqube
+```
+
+To run build:
+
+```shell
+./gradlew build
 ```
 
 Of course, you can just import project in IntelliJ IDEA and use UI to start mentioned gradle task earlier.
