@@ -1,6 +1,6 @@
 package com.github.viktornar.hiccup.game.character;
 
 public interface Trainer {
-    void startAdventure();
+    void startAdventure(int maxTurn);
     TrainerContext getContext();
 }

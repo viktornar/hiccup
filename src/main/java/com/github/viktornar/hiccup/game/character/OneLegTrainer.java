@@ -10,7 +10,7 @@ import org.springframework.util.StringUtils;
 @Component
 @Slf4j
 public class OneLegTrainer implements Trainer {
-    private static final int MAX_TURNS = 1;
+    public static final int MAX_TURN = 100;
     private static final String STEP_CONTEXT_LOG_TEXT = "Step {}, context {}";
 
     private static final TrainerActions.State<TrainerContext, TrainerEvent> IDLE =
@@ -30,6 +30,8 @@ public class OneLegTrainer implements Trainer {
     private final TrainerContext context;
     private final TrainerActions<TrainerContext, TrainerEvent> oneLegTrainerActions;
 
+    private int maxTurn = MAX_TURN;
+
     public OneLegTrainer(APIClient apiClient) {
         this.apiClient = apiClient;
         context = new TrainerContext();
@@ -39,8 +41,9 @@ public class OneLegTrainer implements Trainer {
     }
 
     @Override
-    public void startAdventure() {
+    public void startAdventure(int maxTurn) {
         IDLE.target(TrainerEvent.START, START);
+        this.maxTurn = maxTurn;
 
         // Adventurer is busy by doing dragon training
         do {
@@ -52,10 +55,10 @@ public class OneLegTrainer implements Trainer {
         initQuests();
         initInvestigate();
         initEasyQuestsSolver();
-
-        // init
+        // TODO: Implement flows
+        // initNormalQuestsSolver();
+        // initHardQuestsSolver();
         // initBuyItem();
-        //
 
         // Start the game
         oneLegTrainerActions.accept(TrainerEvent.START);
@@ -70,7 +73,7 @@ public class OneLegTrainer implements Trainer {
         START.onTransition((ctx, state) -> {
             log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.START.name(), ctx);
 
-            if (ctx.getTurn() >= MAX_TURNS) {
+            if (ctx.getTurn() >= this.maxTurn) {
                 log.info("Max turns limit reached. Terminating adventure.");
                 START.target(TrainerEvent.IDLE, IDLE);
                 oneLegTrainerActions.accept(TrainerEvent.IDLE);
