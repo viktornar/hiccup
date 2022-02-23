@@ -23,8 +23,8 @@ public class OneLegTrainer implements Trainer {
             new TrainerActions.State<>(TrainerEvent.INVESTIGATE.name());
     private static final TrainerActions.State<TrainerContext, TrainerEvent> GET_QUESTS =
             new TrainerActions.State<>(TrainerEvent.GET_QUESTS.name());
-    private static final TrainerActions.State<TrainerContext, TrainerEvent> SOLVE_SIMPLE_QUESTS =
-            new TrainerActions.State<>(TrainerEvent.SOLVE_EASY_QUESTS.name());
+    private static final TrainerActions.State<TrainerContext, TrainerEvent> SOLVE_SAFE_QUESTS =
+            new TrainerActions.State<>(TrainerEvent.SOLVE_SAFE_QUESTS.name());
 
     private final APIClient apiClient;
     private final TrainerContext context;
@@ -45,7 +45,7 @@ public class OneLegTrainer implements Trainer {
         IDLE.target(TrainerEvent.START, START);
         this.maxTurn = maxTurn;
 
-        // Adventurer is busy by doing dragon training
+        // Adventurer is busy by doing dragon training :)
         do {
             doTraining();
         } while (!IDLE.equals(oneLegTrainerActions.getState()));
@@ -54,10 +54,8 @@ public class OneLegTrainer implements Trainer {
         initGame();
         initQuests();
         initInvestigate();
-        initEasyQuestsSolver();
+        initSafeQuestsSolver();
         // TODO: Implement flows
-        // initNormalQuestsSolver();
-        // initHardQuestsSolver();
         // initBuyItem();
 
         // Start the game
@@ -116,14 +114,14 @@ public class OneLegTrainer implements Trainer {
             ctx.setQuests(quests);
             ctx.setExpiresInCount(0);
             // Try to solve only easy quests
-            oneLegTrainerActions.accept(TrainerEvent.SOLVE_EASY_QUESTS);
-        }).target(TrainerEvent.SOLVE_EASY_QUESTS, SOLVE_SIMPLE_QUESTS);
+            oneLegTrainerActions.accept(TrainerEvent.SOLVE_SAFE_QUESTS);
+        }).target(TrainerEvent.SOLVE_SAFE_QUESTS, SOLVE_SAFE_QUESTS);
     }
 
-    private void initEasyQuestsSolver() {
-        SOLVE_SIMPLE_QUESTS.onTransition((ctx, state) -> {
-            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_EASY_QUESTS.name(), ctx);
-            var quest = QuestsUtil.getEasiestQuest(ctx);
+    private void initSafeQuestsSolver() {
+        SOLVE_SAFE_QUESTS.onTransition((ctx, state) -> {
+            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_SAFE_QUESTS.name(), ctx);
+            var quest = QuestsUtil.getSafeQuest(ctx);
             quest.ifPresent(value -> {
                 Reward reward = apiClient.trySolveQuest(ctx.getGameId(), value.getAdId());
                 var newQuest = ctx.getQuests();

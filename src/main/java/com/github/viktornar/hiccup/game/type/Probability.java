@@ -2,36 +2,28 @@ package com.github.viktornar.hiccup.game.type;
 
 @SuppressWarnings({ "java:S6205" })
 public enum Probability {
-    UNKNOWN,
-    VERY_HARD,
-    HARD,
-    TRICKY,
-    NORMAL,
-    EASY,
-    VERY_EASY;
+    DANGEROUS,
+    WALK_IN_PARK,
+    QUITE_LIKELY,
+    SURE_THING,
+    PIECE_OF_CAKE;
 
     public static Probability of(String probabilityAsText) {
         switch (probabilityAsText) {
-            case "Hmm..." -> {
-                return Probability.VERY_HARD;
-            }
-            case "Risky" -> {
-                return Probability.HARD;
-            }
             case "Walk in the park" -> {
-                return Probability.TRICKY;
+                return Probability.WALK_IN_PARK;
             }
             case "Quite likely" -> {
-                return Probability.NORMAL;
+                return Probability.QUITE_LIKELY;
             }
             case "Sure thing" -> {
-                return Probability.EASY;
+                return Probability.SURE_THING;
             }
             case "Piece of cake" -> {
-                return Probability.VERY_EASY;
+                return Probability.PIECE_OF_CAKE;
             }
             default -> {
-                return Probability.UNKNOWN;
+                return Probability.DANGEROUS;
             }
         }
     }

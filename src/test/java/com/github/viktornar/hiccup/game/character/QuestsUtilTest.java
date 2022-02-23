@@ -5,7 +5,6 @@ import com.github.viktornar.hiccup.game.type.Probability;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,7 +15,7 @@ class QuestsUtilTest {
         var context = new TrainerContext();
         var quests = new ArrayList<Quest>() {{
             add(new Quest() {{
-                setProbability("Walk in the park");
+                setProbability("Risky");
                 setExpiresIn(4);
             }});
             add(new Quest() {{
@@ -36,15 +35,15 @@ class QuestsUtilTest {
         context.setExpiresInCount(2);
         context.setQuests(quests);
 
-        var quest = QuestsUtil.getEasiestQuest(context);
+        var quest = QuestsUtil.getSafeQuest(context);
 
         assertTrue(quest.isPresent());
 
         quest.ifPresent(q -> {
-            assertTrue(Probability.EASY.equals(Probability.of(q.getProbability())) ||
-                  Probability.VERY_EASY.equals(Probability.of(q.getProbability())));
+            assertTrue(Probability.SURE_THING.equals(Probability.of(q.getProbability())) ||
+                  Probability.PIECE_OF_CAKE.equals(Probability.of(q.getProbability())));
 
-            assertNotEquals(Probability.HARD, Probability.of(q.getProbability()));
+            assertNotEquals(Probability.DANGEROUS, Probability.of(q.getProbability()));
         });
     }
 
@@ -53,7 +52,7 @@ class QuestsUtilTest {
         var context = new TrainerContext();
         var quests = new ArrayList<Quest>() {{
             add(new Quest() {{
-                setProbability("Walk in the park");
+                setProbability("Risky");
                 setExpiresIn(4);
             }});
         }};
@@ -61,7 +60,7 @@ class QuestsUtilTest {
         context.setExpiresInCount(2);
         context.setQuests(quests);
 
-        var quest = QuestsUtil.getEasiestQuest(context);
+        var quest = QuestsUtil.getSafeQuest(context);
 
         assertFalse(quest.isPresent());
     }
@@ -79,8 +78,38 @@ class QuestsUtilTest {
         context.setExpiresInCount(3); // or 2 as well
         context.setQuests(quests);
 
-        var quest = QuestsUtil.getEasiestQuest(context);
+        var quest = QuestsUtil.getSafeQuest(context);
 
         assertFalse(quest.isPresent());
+    }
+
+    @Test
+    void should_get_quest_with_max_reward() {
+        var context = new TrainerContext();
+        var quests = new ArrayList<Quest>() {{
+            add(new Quest() {{
+                setProbability("Sure thing");
+                setExpiresIn(4);
+                setReward(12);
+            }});
+            add(new Quest() {{
+                setProbability("Sure thing");
+                setExpiresIn(4);
+                setReward(23);
+            }});
+            add(new Quest() {{
+                setProbability("Sure thing");
+                setExpiresIn(4);
+                setReward(2);
+            }});
+        }};
+
+        context.setExpiresInCount(2);
+        context.setQuests(quests);
+
+        var quest = QuestsUtil.getSafeQuest(context);
+
+        assertTrue(quest.isPresent());
+        quest.ifPresent(q -> assertEquals(23, q.getReward()));
     }
 }
