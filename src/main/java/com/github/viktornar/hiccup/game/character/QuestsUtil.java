@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 public class QuestsUtil {
-    private static final Predicate<Quest> goodQuestPredicate = q -> {
+    protected static final Predicate<Quest> goodQuestPredicate = q -> {
         var goodTerms = List.of(
                 "sold", "clean", "write", "rescue", "create", "escort", "delivery", "intruders", "help");
         var badTerms = List.of("steal", "kill");
@@ -24,7 +24,6 @@ public class QuestsUtil {
 
         return anyGoodTerm && !anyBadTerm;
     };
-
 
     private QuestsUtil() {
     }
