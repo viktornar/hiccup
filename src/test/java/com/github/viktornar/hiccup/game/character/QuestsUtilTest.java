@@ -43,7 +43,7 @@ class QuestsUtilTest {
             assertTrue(ProbabilityType.SURE_THING.equals(ProbabilityType.of(q.getProbability())) ||
                   ProbabilityType.PIECE_OF_CAKE.equals(ProbabilityType.of(q.getProbability())));
 
-            assertNotEquals(ProbabilityType.DANGEROUS, ProbabilityType.of(q.getProbability()));
+            assertNotEquals(ProbabilityType.IMPOSSIBLE, ProbabilityType.of(q.getProbability()));
         });
     }
 

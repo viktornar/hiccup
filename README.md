@@ -28,6 +28,11 @@ If you want to know what other options exist for this application:
 ```shell
 java -jar ./build/libs/hiccup-0.0.1-SNAPSHOT.jar -help
 ```
+
+Result of some random game in console:
+
+![Result](./img/result.png)
+
 ## Development
 
 I'm using unit tests,  check style and sonar to ensure code quality.

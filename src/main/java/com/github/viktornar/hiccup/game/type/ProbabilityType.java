@@ -2,7 +2,7 @@ package com.github.viktornar.hiccup.game.type;
 
 @SuppressWarnings({ "java:S6205" })
 public enum ProbabilityType {
-    DANGEROUS,
+    IMPOSSIBLE,
     WALK_IN_PARK,
     QUITE_LIKELY,
     SURE_THING,
@@ -23,7 +23,7 @@ public enum ProbabilityType {
                 return ProbabilityType.PIECE_OF_CAKE;
             }
             default -> {
-                return ProbabilityType.DANGEROUS;
+                return ProbabilityType.IMPOSSIBLE;
             }
         }
     }

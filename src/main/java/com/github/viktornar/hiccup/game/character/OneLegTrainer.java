@@ -3,6 +3,7 @@ package com.github.viktornar.hiccup.game.character;
 import com.github.viktornar.hiccup.game.client.APIClient;
 import com.github.viktornar.hiccup.game.data.Reward;
 import com.github.viktornar.hiccup.game.mapper.DtoToTrainerContextMapper;
+import io.reactivex.rxjava3.functions.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -11,8 +12,10 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class OneLegTrainer implements Trainer {
     public static final int MAX_TURN = 100;
+    public static final int HEAL_POTION_PRICE = 50;
+    public static final int MAX_LIVES = 3;
+    public static final int NO_LIVES = 0;
     private static final String STEP_CONTEXT_LOG_TEXT = "Step {}, context {}";
-
     private static final TrainerActions.State<TrainerContext, TrainerEvent> IDLE =
             new TrainerActions.State<>();
     private static final TrainerActions.State<TrainerContext, TrainerEvent> START =
@@ -25,16 +28,18 @@ public class OneLegTrainer implements Trainer {
             new TrainerActions.State<>();
     private static final TrainerActions.State<TrainerContext, TrainerEvent> SOLVE_SAFE_QUESTS =
             new TrainerActions.State<>();
+    private static final TrainerActions.State<TrainerContext, TrainerEvent> SOLVE_IMPOSSIBLE_QUESTS =
+            new TrainerActions.State<>();
     private static final TrainerActions.State<TrainerContext, TrainerEvent> BUY_ITEM =
             new TrainerActions.State<>();
-    public static final int HEAL_POTION_PRICE = 50;
-    public static final int MAX_LIVES = 3;
-
     private final APIClient apiClient;
     private final TrainerContext context;
     private final TrainerActions<TrainerContext, TrainerEvent> oneLegTrainerActions;
 
     private int maxTurn = MAX_TURN;
+
+    Predicate<TrainerContext> shouldEndGame = ctx ->
+            ctx.getTurn() >= this.maxTurn || ctx.getLives() == NO_LIVES || ctx.isGameOver();
 
     public OneLegTrainer(APIClient apiClient) {
         this.apiClient = apiClient;
@@ -57,6 +62,7 @@ public class OneLegTrainer implements Trainer {
         initQuests();
         initInvestigate();
         initSafeQuestsSolver();
+        initImpossibleQuestsSolver();
         initBuyItem();
         // Start the game
         oneLegTrainerActions.accept(TrainerEvent.START);
@@ -71,7 +77,7 @@ public class OneLegTrainer implements Trainer {
         START.onTransition((ctx, state) -> {
             log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.START.name(), ctx);
 
-            if (ctx.getTurn() >= this.maxTurn) {
+            if (shouldEndGame.test(ctx)) {
                 log.info("Max turns limit reached. Terminating adventure.");
                 START.target(TrainerEvent.IDLE, IDLE);
                 oneLegTrainerActions.accept(TrainerEvent.IDLE);
@@ -121,13 +127,13 @@ public class OneLegTrainer implements Trainer {
         }).target(TrainerEvent.SOLVE_SAFE_QUESTS, SOLVE_SAFE_QUESTS);
     }
 
-    private void initSafeQuestsSolver() {
+    protected void initSafeQuestsSolver() {
         SOLVE_SAFE_QUESTS.onTransition((ctx, state) -> {
             log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_SAFE_QUESTS.name(), ctx);
             var quest = QuestsUtil.getSafeQuest(ctx);
             log.info("Will try to solve quest: {}", quest);
-            quest.ifPresent(value -> {
-                Reward reward = apiClient.trySolveQuest(ctx.getGameId(), value.getAdId());
+            if (quest.isPresent()) {
+                Reward reward = apiClient.trySolveQuest(ctx.getGameId(), quest.get().getAdId());
                 log.info("Reward (or not) from quest: {}", reward);
                 var newQuest = ctx.getQuests();
                 // Remove quest. It doesn't exist anymore for trainer
@@ -137,12 +143,37 @@ public class OneLegTrainer implements Trainer {
                 ctx.from(newCtx);
                 // Increase expire count for existing quests in list
                 ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
-            });
-            oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
+                oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
+            } else {
+                SOLVE_SAFE_QUESTS.target(TrainerEvent.SOLVE_IMPOSSIBLE_QUESTS, SOLVE_IMPOSSIBLE_QUESTS);
+                oneLegTrainerActions.accept(TrainerEvent.SOLVE_IMPOSSIBLE_QUESTS);
+            }
         }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
     }
 
-    private void initBuyItem() {
+    protected void initImpossibleQuestsSolver() {
+        SOLVE_IMPOSSIBLE_QUESTS.onTransition((ctx, state) -> {
+            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_IMPOSSIBLE_QUESTS.name(), ctx);
+            var quest = QuestsUtil.getImpossibleQuest(ctx);
+            quest.ifPresent(q -> {
+                Reward reward = apiClient.trySolveQuest(ctx.getGameId(), q.getAdId());
+                log.info("Reward (or not) from quest: {}", reward);
+                var newQuest = ctx.getQuests();
+                // Remove quest. It doesn't exist anymore for trainer
+                newQuest.remove(q);
+                var newCtx = DtoToTrainerContextMapper.INSTANCE.rewardToContext(reward);
+                newCtx.setQuests(newQuest);
+                ctx.from(newCtx);
+                // Increase expire count for existing quests in list
+                ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
+
+            });
+            oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
+            log.info("Will try to solve quest: {}", quest);
+        }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
+    }
+
+    protected void initBuyItem() {
         BUY_ITEM.onTransition((ctx, state) -> {
             // Maybe should I put this to cache since this list not changing?
             var items = apiClient.getAllItems(ctx.getGameId());
@@ -162,6 +193,7 @@ public class OneLegTrainer implements Trainer {
             });
             // Increase expire count for existing quests in list
             ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
+            oneLegTrainerActions.accept(TrainerEvent.INVESTIGATE);
         }).target(TrainerEvent.INVESTIGATE, INVESTIGATE);
     }
 }

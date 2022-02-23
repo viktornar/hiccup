@@ -20,4 +20,11 @@ public class QuestsUtil {
                                 ProbabilityType.WALK_IN_PARK.equals(ProbabilityType.of(q.getProbability())))
                 .max(Comparator.comparingInt(Quest::getReward));
     }
+
+    public static Optional<Quest> getImpossibleQuest(TrainerContext ctx) {
+        return ctx.getQuests().stream()
+                .filter(q -> ctx.getExpiresInCount() < q.getExpiresIn())
+                .filter(q -> ProbabilityType.IMPOSSIBLE.equals(ProbabilityType.of(q.getProbability())))
+                .max(Comparator.comparingInt(Quest::getReward));
+    }
 }

@@ -10,12 +10,56 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class TrainerActions<T, E> implements Consumer<E> {
+public class TrainerActions<T extends TrainerContext, E> implements Consumer<E> {
+    private final T context;
+    private final PublishSubject<E> events = PublishSubject.create();
+    private State<T, E> state;
+
+    public TrainerActions(T context, State<T, E> initial) {
+        this.state = initial;
+        this.context = context;
+    }
+
+    public Observable<Void> connect() {
+        return Observable.create(sub -> {
+            state.enter(context);
+
+            sub.setDisposable(events.collect(() -> context, (ctx, event) -> {
+                        final State<T, E> next = state.next(event);
+
+                        if (next != null) {
+                            state.exit(ctx);
+                            state = next;
+                            next.enter(ctx);
+                        } else {
+                            log.info("Invalid event: {}", event);
+                        }
+                    })
+                    // Log error
+                    .doOnError(error -> log.error("Unable to completely process flow: {}", error.getMessage()))
+                    // On unexpected exception just terminate game.
+                    .onErrorReturn(s -> {
+                        context.setGameOver(true);
+                        return context;
+                    })
+                    .subscribe());
+        });
+    }
+
+    @Override
+    public void accept(E event) {
+        events.onNext(event);
+    }
+
+    public synchronized State<T, E> getState() {
+        return state;
+    }
+
     @Slf4j
     public static class State<T, E> {
+        private final Map<E, State<T, E>> transitions = new HashMap<>();
         private BiConsumer<T, State<T, E>> enter;
         private BiConsumer<T, State<T, E>> exit;
-        private final Map<E, State<T, E>> transitions = new HashMap<>();
 
         public State<T, E> onTransition(BiConsumer<T, State<T, E>> func) {
             this.enter = func;
@@ -42,48 +86,5 @@ public class TrainerActions<T, E> implements Consumer<E> {
         public State<T, E> next(E event) {
             return transitions.get(event);
         }
-    }
-
-    private State<T, E> state;
-
-    private final T context;
-
-    private final PublishSubject<E> events = PublishSubject.create();
-
-    public TrainerActions(T context, State<T, E> initial) {
-        this.state = initial;
-        this.context = context;
-    }
-
-    public Observable<Void> connect() {
-        return Observable.create(sub -> {
-            state.enter(context);
-
-            sub.setDisposable(events.collect(() -> context, (ctx, event) -> {
-                        final State<T, E> next = state.next(event);
-
-                        if (next != null) {
-                            state.exit(ctx);
-                            state = next;
-                            next.enter(ctx);
-                        } else {
-                            log.info("Invalid event: {}", event);
-                        }
-                    })
-                    // Log error
-                    .doOnError(error -> log.error("Unable to completely process flow: {}", error.getMessage()))
-                    // Recover, will repeat steps.
-                    .onErrorReturnItem(context)
-                    .subscribe());
-        });
-    }
-
-    @Override
-    public void accept(E event) {
-        events.onNext(event);
-    }
-
-    public synchronized State<T, E> getState() {
-        return state;
     }
 }

@@ -12,7 +12,7 @@ import java.util.List;
 public class TrainerContext {
     private String gameId;
     private int level = 0;
-    private int lives = 0;
+    private int lives = 3;
     private int gold = 0;
     private int score = 0;
     private int turn = 0;
@@ -21,6 +21,7 @@ public class TrainerContext {
     private int underworld = 0;
     private int highScore = 0;
     private int expiresInCount = 0;
+    private boolean gameOver = false;
     private List<Quest> quests = Collections.emptyList();
     private List<Item> purchasedItems = new ArrayList<>();
 
