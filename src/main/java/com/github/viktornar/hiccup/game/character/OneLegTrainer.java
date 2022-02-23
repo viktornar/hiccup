@@ -14,17 +14,17 @@ public class OneLegTrainer implements Trainer {
     private static final String STEP_CONTEXT_LOG_TEXT = "Step {}, context {}";
 
     private static final TrainerActions.State<TrainerContext, TrainerEvent> IDLE =
-            new TrainerActions.State<>(TrainerEvent.IDLE.name());
+            new TrainerActions.State<>();
     private static final TrainerActions.State<TrainerContext, TrainerEvent> START =
-            new TrainerActions.State<>(TrainerEvent.START.name());
+            new TrainerActions.State<>();
     private static final TrainerActions.State<TrainerContext, TrainerEvent> REGISTER =
-            new TrainerActions.State<>(TrainerEvent.REGISTER.name());
+            new TrainerActions.State<>();
     private static final TrainerActions.State<TrainerContext, TrainerEvent> INVESTIGATE =
-            new TrainerActions.State<>(TrainerEvent.INVESTIGATE.name());
+            new TrainerActions.State<>();
     private static final TrainerActions.State<TrainerContext, TrainerEvent> GET_QUESTS =
-            new TrainerActions.State<>(TrainerEvent.GET_QUESTS.name());
+            new TrainerActions.State<>();
     private static final TrainerActions.State<TrainerContext, TrainerEvent> SOLVE_SAFE_QUESTS =
-            new TrainerActions.State<>(TrainerEvent.SOLVE_SAFE_QUESTS.name());
+            new TrainerActions.State<>();
 
     private final APIClient apiClient;
     private final TrainerContext context;
@@ -122,8 +122,10 @@ public class OneLegTrainer implements Trainer {
         SOLVE_SAFE_QUESTS.onTransition((ctx, state) -> {
             log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_SAFE_QUESTS.name(), ctx);
             var quest = QuestsUtil.getSafeQuest(ctx);
+            log.info("Will try to solve quest: {}", quest);
             quest.ifPresent(value -> {
                 Reward reward = apiClient.trySolveQuest(ctx.getGameId(), value.getAdId());
+                log.info("Reward (or not) from quest: {}", reward);
                 var newQuest = ctx.getQuests();
                 // Remove quest. It doesn't exist anymore for trainer
                 newQuest.remove(quest.get());

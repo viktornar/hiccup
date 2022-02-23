@@ -13,10 +13,10 @@ class TrainerActionsTest {
 
     @BeforeEach
     void setUp() {
-        IDLE = new TrainerActions.State<>(TrainerEvent.IDLE.name());
-        START = new TrainerActions.State<>(TrainerEvent.START.name());
-        INVESTIGATE = new TrainerActions.State<>(TrainerEvent.INVESTIGATE.name());
-        END = new TrainerActions.State<>(TrainerEvent.END.name());
+        IDLE = new TrainerActions.State<>();
+        START = new TrainerActions.State<>();
+        INVESTIGATE = new TrainerActions.State<>();
+        END = new TrainerActions.State<>();
     }
 
     @Test

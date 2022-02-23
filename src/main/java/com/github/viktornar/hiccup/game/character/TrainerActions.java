@@ -13,14 +13,9 @@ import java.util.Map;
 public class TrainerActions<T, E> implements Consumer<E> {
     @Slf4j
     public static class State<T, E> {
-        private final String name;
         private BiConsumer<T, State<T, E>> enter;
         private BiConsumer<T, State<T, E>> exit;
         private final Map<E, State<T, E>> transitions = new HashMap<>();
-
-        public State(String name) {
-            this.name = name;
-        }
 
         public State<T, E> onTransition(BiConsumer<T, State<T, E>> func) {
             this.enter = func;
@@ -46,10 +41,6 @@ public class TrainerActions<T, E> implements Consumer<E> {
 
         public State<T, E> next(E event) {
             return transitions.get(event);
-        }
-
-        public String toString() {
-            return name;
         }
     }
 
