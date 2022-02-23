@@ -65,8 +65,8 @@ public class OneLegTrainer implements Trainer {
         initQuests();
         initInvestigate();
         initSafeQuestsSolver();
-        initDangerousQuestsSolver();
         initGambleQuestsSolver();
+        initDangerousQuestsSolver();
         initBuyItem();
         // Start the game
         oneLegTrainerActions.accept(TrainerEvent.START);
@@ -82,7 +82,7 @@ public class OneLegTrainer implements Trainer {
             log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.START.name(), ctx);
 
             if (shouldEndGame.test(ctx)) {
-                log.info("Max turns limit reached. Terminating adventure.");
+                log.info("Max turns limit reached or trainer was killed. Terminating adventure.");
                 START.target(TrainerEvent.IDLE, IDLE);
                 oneLegTrainerActions.accept(TrainerEvent.IDLE);
             } else {
@@ -148,6 +148,27 @@ public class OneLegTrainer implements Trainer {
         }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
     }
 
+    protected void initGambleQuestsSolver() {
+        SOLVE_GAMBLE_QUESTS.onTransition((ctx, state) -> {
+            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_GAMBLE_QUESTS.name(), ctx);
+            var quest = QuestsUtil.getGambleQuest(ctx);
+            if (quest.isPresent()) {
+                log.info("Will try to solve quest: {}", quest.get());
+                tryToSolveAndUpdateCtx(ctx, quest.get());
+                // Increase expire count for existing quests in list
+                ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
+            }
+
+            if (QuestsUtil.checkIfNoMoreQuestsToSolve(ctx)) {
+                ctx.setGameOver(true);
+                SOLVE_GAMBLE_QUESTS.target(TrainerEvent.INVESTIGATE, INVESTIGATE);
+                oneLegTrainerActions.accept(TrainerEvent.INVESTIGATE);
+            } else {
+                oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
+            }
+        }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
+    }
+
     protected void initDangerousQuestsSolver() {
         SOLVE_DANGEROUS_QUESTS.onTransition((ctx, state) -> {
             log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_DANGEROUS_QUESTS.name(), ctx);
@@ -158,24 +179,15 @@ public class OneLegTrainer implements Trainer {
                 // Increase expire count for existing quests in list
                 ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
                 oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
-            } else {
-                SOLVE_DANGEROUS_QUESTS.target(TrainerEvent.SOLVE_GAMBLE_QUESTS, SOLVE_GAMBLE_QUESTS);
-                oneLegTrainerActions.accept(TrainerEvent.SOLVE_GAMBLE_QUESTS);
             }
-        }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
-    }
 
-    protected void initGambleQuestsSolver() {
-        SOLVE_GAMBLE_QUESTS.onTransition((ctx, state) -> {
-            log.info(STEP_CONTEXT_LOG_TEXT, TrainerEvent.SOLVE_GAMBLE_QUESTS.name(), ctx);
-            var quest = QuestsUtil.getImpossibleQuest(ctx);
-            quest.ifPresent(q -> {
-                log.info("Will try to solve quest: {}", q);
-                tryToSolveAndUpdateCtx(ctx, q);
-                // Increase expire count for existing quests in list
-                ctx.setExpiresInCount(ctx.getExpiresInCount() + 1);
-            });
-            oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
+            if (QuestsUtil.checkIfNoMoreQuestsToSolve(ctx)) {
+                ctx.setGameOver(true);
+                SOLVE_GAMBLE_QUESTS.target(TrainerEvent.INVESTIGATE, INVESTIGATE);
+                oneLegTrainerActions.accept(TrainerEvent.INVESTIGATE);
+            } else {
+                oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);
+            }
         }).target(TrainerEvent.BUY_ITEM, BUY_ITEM);
     }
 

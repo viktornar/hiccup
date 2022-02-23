@@ -38,11 +38,16 @@ public class QuestsUtil {
                 .max(Comparator.comparingInt(Quest::getReward));
     }
 
-    public static Optional<Quest> getImpossibleQuest(TrainerContext ctx) {
+    public static Optional<Quest> getGambleQuest(TrainerContext ctx) {
         return ctx.getQuests().stream()
                 .filter(q -> ctx.getExpiresInCount() < q.getExpiresIn())
-                .filter(q -> ProbabilityType.GAMBLE.equals(ProbabilityType.of(q.getProbability())))
+                .filter(q -> ProbabilityType.GAMBLE.equals(ProbabilityType.of(q.getProbability())) ||
+                        ProbabilityType.HMM.equals(ProbabilityType.of(q.getProbability())))
                 .filter(goodQuestPredicate)
                 .max(Comparator.comparingInt(Quest::getReward));
+    }
+
+    public static boolean checkIfNoMoreQuestsToSolve(TrainerContext ctx) {
+        return ctx.getQuests().stream().allMatch(q -> ProbabilityType.IMPOSSIBLE.equals(ProbabilityType.of(q.getProbability())));
     }
 }
