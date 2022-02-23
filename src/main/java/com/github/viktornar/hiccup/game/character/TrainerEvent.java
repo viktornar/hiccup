@@ -10,6 +10,5 @@ public enum TrainerEvent {
     SOLVE_GAMBLE_QUESTS,
     INVESTIGATE,
     BUY_ITEM,
-    COUNT,
     END
 }
