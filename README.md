@@ -5,7 +5,7 @@ The application is named in honor of the main character from **How to train drag
 
 ## Getting Started
 
-Project use gradle for build and other repetitive tasks. To build project you need to execute:
+For development I have used **Java 17** and with source compatibility only for this version. It means that if you want to build or run release jar in your PC, you need to have **Java 17** version. Project use gradle for build and other repetitive tasks. To build project you need to execute:
 
 ```shell
 ./gradlew build
