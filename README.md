@@ -1,6 +1,7 @@
 # Hiccup application
 
 This is a simple application that try to simulate player for **Dragons of mugloar** game.
+The application is named in honor of the main character from **How to train dragon** movie.
 
 ## Getting Started
 
