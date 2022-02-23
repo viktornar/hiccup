@@ -63,7 +63,7 @@ I have decided to use state machine. Most of the existing solution are quite big
 
 For data mapping from one data (reward, basket, game) class into another (trainer context) I'm using map struct. This library let to simply such data flow between data classes.
 
-At the end I was able to reach level 15 with around 3810 score in best case. On average I'm always able to reach level 15 with around 2500 score, but I believe that it can be improved, but I need to know what kind of logic is under the hood in game engine.
+At the end I was able to reach level 15 with around 3810 score in best case. On average, I'm always able to reach level 15 with around 2500 score, but I believe that it can be improved, but I need to know what kind of logic is under the hood in game engine.
 
 ## What was wrong?
 
