@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
         havingValue = "true",
         matchIfMissing = true
 )
+@SuppressWarnings({"java:S106"})
 public class HiccupRunner implements CommandLineRunner {
     public static final String MAX_TURN_OPTION = "maxTurn";
     public static final String HELP_OPTION = "help";
@@ -32,7 +33,7 @@ public class HiccupRunner implements CommandLineRunner {
         options.addOption(MAX_TURN_OPTION, true, "max turn number");
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
-        CommandLine cmd = null;
+        CommandLine cmd;
         var maxTurnNumber = OneLegTrainer.MAX_TURN;
         try {
             cmd = parser.parse(options, args);
@@ -49,6 +50,19 @@ public class HiccupRunner implements CommandLineRunner {
             oneLegTrainer.startAdventure(maxTurnNumber);
             var trainerContext = oneLegTrainer.getContext();
             log.info("Final state of trainer after finish dragon train adventure: {}", trainerContext);
+
+            System.out.println("-----------------------------------------------");
+            if (trainerContext.getLives() == 0) {
+                System.out.printf("Dragon trainer is dead.  He/she was at %s level with score %s%n",
+                        trainerContext.getLevel(),
+                        trainerContext.getScore());
+            } else {
+                System.out.printf("Dragon trainer has finished training.  He/she have %s level with score %s. " +
+                                "Could not reach anything more.%n",
+                        trainerContext.getLevel(),
+                        trainerContext.getScore());
+            }
+            System.out.println("-----------------------------------------------");
         } catch (ParseException e) {
             log.error("{}", e.getMessage());
             formatter.printHelp(APP_NAME, options);
