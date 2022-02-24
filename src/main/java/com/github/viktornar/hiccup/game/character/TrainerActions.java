@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class TrainerActions<T extends TrainerContext, E> implements Consumer<E> {
+public class TrainerActions<T extends TrainerContext, E extends TrainerEvent> implements Consumer<E> {
     private final T context;
     private final PublishSubject<E> events = PublishSubject.create();
     private State<T, E> state;
@@ -24,26 +24,27 @@ public class TrainerActions<T extends TrainerContext, E> implements Consumer<E> 
         return Observable.create(sub -> {
             state.enter(context);
 
-            sub.setDisposable(events.collect(() -> context, (ctx, event) -> {
-                        final State<T, E> next = state.next(event);
+            sub.setDisposable(
+                    events.collect(() -> context, (ctx, event) -> {
+                                var next = state.next(event);
 
-                        if (next != null) {
-                            state.exit(ctx);
-                            state = next;
-                            next.enter(ctx);
-                        } else {
-                            // Probably can be ignored
-                            log.warn("Invalid event: {}", event);
-                        }
-                    })
-                    // Log error
-                    .doOnError(error -> log.error("Unable to completely process flow: {}", error.getMessage()))
-                    // On unexpected exception just terminate game.
-                    .onErrorReturn(s -> {
-                        context.setGameOver(true);
-                        return context;
-                    })
-                    .subscribe());
+                                if (next != null) {
+                                    state.exit(ctx);
+                                    state = next;
+                                    next.enter(ctx);
+                                } else {
+                                    // Probably can be ignored
+                                    log.warn("Invalid event: {}", event);
+                                }
+                            })
+                            // On unexpected exception just terminate game.
+                            .onErrorReturn(e -> {
+                                log.error("Unable to finish game: {}", e.getMessage());
+                                context.setGameOver(true);
+                                return context;
+                            })
+                            .subscribe()
+            );
         });
     }
 

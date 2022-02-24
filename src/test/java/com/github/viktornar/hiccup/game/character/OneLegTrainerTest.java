@@ -7,6 +7,7 @@ import com.github.viktornar.hiccup.game.data.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -481,5 +482,70 @@ class OneLegTrainerTest {
         assertEquals(0, ctx.getState());
         assertEquals(2, ctx.getTurn());
         assertEquals(0, ctx.getPurchasedItems().size());
+    }
+
+    @Test
+    void should_handle_unexpected_exception() {
+        var game = new Game() {{
+            setGameId("ZwU2VPGj");
+            setGold(0);
+            setHighScore(0);
+            setScore(0);
+            setLevel(0);
+            setLives(3);
+        }};
+
+        when(restTemplate.postForObject(
+                "https://dragonsofmugloar.com/api/v2/game/start",
+                null,
+                Game.class)
+        ).thenReturn(game);
+
+        var reputation = new Reputation() {{
+            setPeople(0);
+            setState(0);
+            setUnderworld(0);
+        }};
+
+        when(restTemplate.postForObject(
+                "https://dragonsofmugloar.com/api/v2/ZwU2VPGj/investigate/reputation",
+                null,
+                Reputation.class)
+        ).thenReturn(reputation);
+
+        when(restTemplate.getForObject(
+                "https://dragonsofmugloar.com/api/v2/ZwU2VPGj/messages",
+                Quest[].class)
+        ).thenReturn(new Quest[]{
+                new Quest() {{
+                    setAdId("ZtoUbmH1");
+                    setMessage("Help defending field in Newheart from the intruders");
+                    setExpiresIn(6);
+                    setProbability("Risky");
+                    setReward(140);
+                }}
+        });
+
+        when(restTemplate.postForObject(
+                "https://dragonsofmugloar.com/api/v2/ZwU2VPGj/solve/ZtoUbmH1",
+                null,
+                Reward.class)
+        ).thenThrow(new ResourceAccessException("Some unexpected exception"));
+
+        var item = new Item() {{
+            setId("wc");
+            setCost(1000);
+            setName("Sword");
+        }};
+
+        when(restTemplate.getForObject(
+                "https://dragonsofmugloar.com/api/v2/ZwU2VPGj/shop",
+                Item[].class)
+        ).thenReturn(new Item[]{item});
+
+        oneLegTrainer.startAdventure(2);
+        var ctx = oneLegTrainer.getContext();
+
+        assertTrue(ctx.isGameOver());
     }
 }

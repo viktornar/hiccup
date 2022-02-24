@@ -41,7 +41,7 @@ public class OneLegTrainer implements Trainer {
 
     private int maxTurn = MAX_TURN;
 
-    Predicate<TrainerContext> shouldEndGame = ctx ->
+    Predicate<TrainerContext> shouldEndFlow = ctx ->
             (ctx.getTurn() != null && ctx.getTurn() >= this.maxTurn) ||
                     (ctx.getLives() != null && ctx.getLives() == NO_LIVES) || ctx.isGameOver();
 
@@ -69,10 +69,14 @@ public class OneLegTrainer implements Trainer {
         // Start the game
         log.info("Starting train a dragon");
         oneLegTrainerActions.accept(TrainerEvent.START);
-        do {
+        while (!IDLE.equals(oneLegTrainerActions.getState()) &&
+                !context.isGameOver()) {
             // Adventurer is busy by doing dragon training :)
             oneLegTrainerActions.accept(TrainerEvent.REGISTER);
-        } while (!IDLE.equals(oneLegTrainerActions.getState()));
+            if (context.isGameOver()) {
+                log.info("Trainer are dead. You lost your game");
+            }
+        }
     }
 
     @Override
@@ -84,7 +88,7 @@ public class OneLegTrainer implements Trainer {
         START.onTransition((ctx, state) -> {
             log.debug(STEP_CONTEXT_LOG_TEXT, TrainerEvent.START.name(), ctx);
 
-            if (shouldEndGame.test(ctx)) {
+            if (shouldEndFlow.test(ctx)) {
                 log.info("Max turns limit reached or trainer was killed. Terminating adventure.");
                 START.target(TrainerEvent.IDLE, IDLE);
                 oneLegTrainerActions.accept(TrainerEvent.IDLE);
