@@ -67,12 +67,12 @@ public class OneLegTrainer implements Trainer {
         initDangerousQuestsSolver();
         initBuyItem();
         // Start the game
-        // Adventurer is busy by doing dragon training :)
+        log.info("Starting train a dragon");
         oneLegTrainerActions.accept(TrainerEvent.START);
         do {
+            // Adventurer is busy by doing dragon training :)
             oneLegTrainerActions.accept(TrainerEvent.REGISTER);
         } while (!IDLE.equals(oneLegTrainerActions.getState()));
-        log.info("Starting train a dragon");
     }
 
     @Override
@@ -103,7 +103,6 @@ public class OneLegTrainer implements Trainer {
                 ctx.from(newCtx);
                 log.info("Registering a new game with id: {}", game.getGameId());
             }
-            log.info("Trainer state after turn {{}}: {{}}", ctx.getTurn(), ctx);
             // I'm brave trainer. Let's start solving quests.
             oneLegTrainerActions.accept(TrainerEvent.GET_QUESTS);
         }).target(TrainerEvent.GET_QUESTS, GET_QUESTS);
