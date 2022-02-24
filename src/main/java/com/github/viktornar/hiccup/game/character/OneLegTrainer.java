@@ -69,9 +69,9 @@ public class OneLegTrainer implements Trainer {
         // Start the game
         log.info("Starting train a dragon");
         oneLegTrainerActions.accept(TrainerEvent.START);
+        // Adventurer is busy by doing dragon training :)
         while (!IDLE.equals(oneLegTrainerActions.getState()) &&
                 !context.isGameOver()) {
-            // Adventurer is busy by doing dragon training :)
             oneLegTrainerActions.accept(TrainerEvent.REGISTER);
             if (context.isGameOver()) {
                 log.info("Trainer are dead. You lost your game");
