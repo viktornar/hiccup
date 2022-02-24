@@ -126,7 +126,7 @@ class OneLegTrainerTest {
         assertEquals(1, ctx.getScore());
         assertEquals(3, ctx.getLives());
         assertEquals(1, ctx.getState());
-        assertEquals(4, ctx.getTurn());
+        assertEquals(3, ctx.getTurn());
         assertEquals("wc", ctx.getPurchasedItems().get(0).getId());
         assertEquals(60, ctx.getPurchasedItems().get(0).getCost());
     }

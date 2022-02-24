@@ -17,22 +17,22 @@ class QuestsUtilTest {
         var quests = new ArrayList<Quest>() {{
             add(new Quest() {{
                 setProbability("Risky");
-                setMessage("help");
+                setMessage("rescue");
                 setExpiresIn(4);
             }});
             add(new Quest() {{
                 setProbability("Piece of cake");
-                setMessage("help");
+                setMessage("rescue");
                 setExpiresIn(3);
             }});
             add(new Quest() {{
                 setProbability("Sure thing");
-                setMessage("help");
+                setMessage("rescue");
                 setExpiresIn(3);
             }});
             add(new Quest() {{
                 setProbability("Sure thing");
-                setMessage("help");
+                setMessage("rescue");
                 setExpiresIn(2);
             }});
         }};
@@ -57,22 +57,22 @@ class QuestsUtilTest {
         var quests = new ArrayList<Quest>() {{
             add(new Quest() {{
                 setProbability("Risky");
-                setMessage("help");
+                setMessage("rescue");
                 setExpiresIn(4);
             }});
             add(new Quest() {{
                 setProbability("Piece of cake");
-                setMessage("help");
+                setMessage("rescue");
                 setExpiresIn(3);
             }});
             add(new Quest() {{
                 setProbability("Sure thing");
-                setMessage("help");
+                setMessage("rescue");
                 setExpiresIn(3);
             }});
             add(new Quest() {{
                 setProbability("Sure thing");
-                setMessage("help");
+                setMessage("rescue");
                 setExpiresIn(2);
             }});
         }};
@@ -97,22 +97,22 @@ class QuestsUtilTest {
         var quests = new ArrayList<Quest>() {{
             add(new Quest() {{
                 setProbability("Gamble");
-                setMessage("help");
+                setMessage("rescue");
                 setExpiresIn(4);
             }});
             add(new Quest() {{
                 setProbability("Piece of cake");
-                setMessage("help");
+                setMessage("rescue");
                 setExpiresIn(3);
             }});
             add(new Quest() {{
                 setProbability("Sure thing");
-                setMessage("help");
+                setMessage("rescue");
                 setExpiresIn(3);
             }});
             add(new Quest() {{
                 setProbability("Sure thing");
-                setMessage("help");
+                setMessage("rescue");
                 setExpiresIn(2);
             }});
         }};
@@ -155,18 +155,18 @@ class QuestsUtilTest {
             add(new Quest() {{
                 setProbability("Sure thing");
                 setExpiresIn(4);
-                setMessage("help");
+                setMessage("rescue");
                 setReward(12);
             }});
             add(new Quest() {{
                 setProbability("Sure thing");
-                setMessage("help");
+                setMessage("rescue");
                 setExpiresIn(4);
                 setReward(23);
             }});
             add(new Quest() {{
                 setProbability("Sure thing");
-                setMessage("help");
+                setMessage("rescue");
                 setExpiresIn(4);
                 setReward(2);
             }});
@@ -190,7 +190,7 @@ class QuestsUtilTest {
             }});
             add(new Quest() {{
                 setProbability("Sure thing");
-                setMessage("help steal");
+                setMessage("steal");
                 setExpiresIn(4);
                 setReward(23);
             }});

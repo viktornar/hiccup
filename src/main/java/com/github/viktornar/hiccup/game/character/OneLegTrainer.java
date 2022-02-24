@@ -57,6 +57,7 @@ public class OneLegTrainer implements Trainer {
         this.maxTurn = Math.min(maxTurn, MAX_TURN);
         // Register flows that can have tangled connection between each other :D
         IDLE.target(TrainerEvent.START, START);
+        initTraining();
         initGame();
         initQuests();
         initInvestigate();
@@ -64,13 +65,13 @@ public class OneLegTrainer implements Trainer {
         initGambleQuestsSolver();
         initDangerousQuestsSolver();
         initBuyItem();
-        // Adventurer is busy by doing dragon training :)
-        do {
-            doTraining();
-        } while (!IDLE.equals(oneLegTrainerActions.getState()));
         // Start the game
-        log.info("Starting train a dragon");
+        // Adventurer is busy by doing dragon training :)
         oneLegTrainerActions.accept(TrainerEvent.START);
+        do {
+            oneLegTrainerActions.accept(TrainerEvent.REGISTER);
+        } while (!IDLE.equals(oneLegTrainerActions.getState()));
+        log.info("Starting train a dragon");
     }
 
     @Override
@@ -78,7 +79,7 @@ public class OneLegTrainer implements Trainer {
         return context;
     }
 
-    protected void doTraining() {
+    protected void initTraining() {
         START.onTransition((ctx, state) -> {
             log.debug(STEP_CONTEXT_LOG_TEXT, TrainerEvent.START.name(), ctx);
 
@@ -86,8 +87,6 @@ public class OneLegTrainer implements Trainer {
                 log.info("Max turns limit reached or trainer was killed. Terminating adventure.");
                 START.target(TrainerEvent.IDLE, IDLE);
                 oneLegTrainerActions.accept(TrainerEvent.IDLE);
-            } else {
-                oneLegTrainerActions.accept(TrainerEvent.REGISTER);
             }
         }).target(TrainerEvent.REGISTER, REGISTER);
     }
@@ -109,8 +108,6 @@ public class OneLegTrainer implements Trainer {
     private void initInvestigate() {
         INVESTIGATE.onTransition((ctx, state) -> {
             log.debug(STEP_CONTEXT_LOG_TEXT, TrainerEvent.INVESTIGATE.name(), ctx);
-            log.info("Increased turn by one. Current turn {}", ctx.getTurn());
-            ctx.setTurn(ctx.getTurn() + 1);
             var reputation = apiClient.investigateReputation(ctx.getGameId());
             var newCtx = DataToTrainerContextMapper.INSTANCE.reputationToContext(reputation);
             ctx.from(newCtx);

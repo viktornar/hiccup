@@ -63,13 +63,13 @@ I have decided to use state machine. Most of the existing solution are quite big
 
 For data mapping from one data (reward, basket, game) class into another (trainer context) I'm using map struct. This library let to simplify such data flow between data classes.
 
-At the end I was able to reach level 15 with around 3810 score in best case. On average, I'm always able to reach level 15 with around 2500 score, but I believe that it can be improved, but I need to know what kind of logic is under the hood in game engine.
+At the end I was able to reach level 15 with 4001 score in best case. On average, I'm always able to reach level 15 with around 3000 score, but I believe that it can be improved, but I need to know what kind of logic is under the hood in game engine.
 
 ## What was wrong?
 
-State machine? It seems that mys solution is not so good as I thought at start. Api of state machine that was created is complicated and not clear. It is also have a bug. Stack overflow occur if we have more than 180 turns. Do not figure out have to dispose correctly events in subject.
+State machine? It seems that mys solution is not so good as I thought at start. Api of state machine that was created is complicated and not clear.
 
-It would be interesting to implement decision tree for solving this game, but I have a limited amount of time and will leave this maybe (repeat again, maybe :D) in the future.
+It would be interesting to implement decision tree for solving this game, but I have a limited amount of time and will leave this maybe (repeat, maybe :D) in the future.
 
 ## Development
 

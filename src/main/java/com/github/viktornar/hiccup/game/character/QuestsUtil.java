@@ -11,7 +11,8 @@ import java.util.function.Predicate;
 public class QuestsUtil {
     protected static final Predicate<Quest> goodQuestPredicate = q -> {
         var goodTerms = List.of(
-                "sold", "clean", "write", "rescue", "create", "escort", "delivery", "intruders", "help");
+                "sell", "clean", "transport", "defend", "write", "agreement",
+                "rescue", "create", "escort", "delivery", "intruders");
         var badTerms = List.of("steal", "kill");
 
         var anyGoodTerm = goodTerms.stream()
