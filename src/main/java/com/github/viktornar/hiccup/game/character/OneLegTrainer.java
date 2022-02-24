@@ -42,7 +42,8 @@ public class OneLegTrainer implements Trainer {
     private int maxTurn = MAX_TURN;
 
     Predicate<TrainerContext> shouldEndGame = ctx ->
-            ctx.getTurn() >= this.maxTurn || ctx.getLives() == NO_LIVES || ctx.isGameOver();
+            (ctx.getTurn() != null && ctx.getTurn() >= this.maxTurn) ||
+                    (ctx.getLives() != null && ctx.getLives() == NO_LIVES) || ctx.isGameOver();
 
     public OneLegTrainer(APIClient apiClient) {
         this.apiClient = apiClient;
@@ -97,9 +98,12 @@ public class OneLegTrainer implements Trainer {
             if (!StringUtils.hasText(ctx.getGameId())) {
                 var game = apiClient.startGame();
                 var newCtx = DataToTrainerContextMapper.INSTANCE.gameToContext(game);
+                // Initial state. We need to init first step as 0
+                context.setTurn(0);
                 ctx.from(newCtx);
                 log.info("Registering a new game with id: {}", game.getGameId());
             }
+            log.info("Trainer state after turn {{}}: {{}}", ctx.getTurn(), ctx);
             // I'm brave trainer. Let's start solving quests.
             oneLegTrainerActions.accept(TrainerEvent.GET_QUESTS);
         }).target(TrainerEvent.GET_QUESTS, GET_QUESTS);
@@ -182,7 +186,7 @@ public class OneLegTrainer implements Trainer {
 
             if (QuestsUtil.checkIfNoMoreQuestsToSolve(ctx)) {
                 ctx.setGameOver(true);
-                log.info("No more quests possible to solve. I'm not suicide, so retire");
+                log.info("No more quests possible to solve.");
             }
             // After quest trainer can be injured, so he need to heal him before finishing training
             oneLegTrainerActions.accept(TrainerEvent.BUY_ITEM);

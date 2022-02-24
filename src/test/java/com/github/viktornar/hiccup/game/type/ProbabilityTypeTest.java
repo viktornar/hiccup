@@ -13,5 +13,8 @@ class ProbabilityTypeTest {
         assertEquals(ProbabilityType.QUITE_LIKELY, ProbabilityType.of("Quite likely"));
         assertEquals(ProbabilityType.SURE_THING, ProbabilityType.of("Sure thing"));
         assertEquals(ProbabilityType.PIECE_OF_CAKE, ProbabilityType.of("Piece of cake"));
+        assertEquals(ProbabilityType.IMPOSSIBLE, ProbabilityType.of("Impossible"));
+        assertEquals(ProbabilityType.IMPOSSIBLE, ProbabilityType.of("some"));
+        assertNotEquals(ProbabilityType.PIECE_OF_CAKE, ProbabilityType.of("Risky"));
     }
 }

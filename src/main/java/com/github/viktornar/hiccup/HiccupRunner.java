@@ -52,7 +52,7 @@ public class HiccupRunner implements CommandLineRunner {
             log.debug("Final state of trainer after finish dragon train adventure: {}", trainerContext);
 
             System.out.println("-----------------------------------------------");
-            if (trainerContext.getLives() == 0) {
+            if (trainerContext.getLives() == null || trainerContext.getLives() == 0) {
                 System.out.printf("Dragon trainer is dead.  He/she was at %s level with score %s%n",
                         trainerContext.getLevel(),
                         trainerContext.getScore());
