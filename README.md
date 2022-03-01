@@ -20,13 +20,13 @@ If you want to run application you can either:
 or:
 
 ```shell
-java -jar ./build/libs/hiccup-0.0.1-SNAPSHOT.jar -maxTurn 100
+java -jar ./build/libs/hiccup-0.0.2-SNAPSHOT.jar -maxTurn 100
 ```
 
 If you want to know what other options exist for this application:
 
 ```shell
-java -jar ./build/libs/hiccup-0.0.1-SNAPSHOT.jar -help
+java -jar ./build/libs/hiccup-0.0.2-SNAPSHOT.jar -help
 ```
 
 Result of some random game in console:
