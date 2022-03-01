@@ -1,47 +1,33 @@
 package com.github.viktornar.hiccup.game.type;
 
-@SuppressWarnings({ "java:S6205" })
+import lombok.Getter;
+
+import java.util.Arrays;
+
+@SuppressWarnings({"java:S6205"})
 public enum ProbabilityType {
-    IMPOSSIBLE,
-    WALK_IN_PARK,
-    QUITE_LIKELY,
-    SURE_THING,
-    RISKY,
-    HMM,
-    GAMBLE,
-    PLAYING_WITH_FIRE,
-    RATHER_DETRIMENTAL,
-    PIECE_OF_CAKE;
+    IMPOSSIBLE("Impossible"),
+    WALK_IN_PARK("Walk in the park"),
+    QUITE_LIKELY("Quite likely"),
+    SURE_THING("Sure thing"),
+    RISKY("Risky"),
+    HMM("Hmm...."),
+    GAMBLE("Gamble"),
+    PLAYING_WITH_FIRE("Playing with fire"),
+    RATHER_DETRIMENTAL("Rather detrimental"),
+    PIECE_OF_CAKE("Piece of cake");
+
+    @Getter
+    private final String probability;
+
+    ProbabilityType(String probabilityAsText) {
+        this.probability = probabilityAsText;
+    }
 
     public static ProbabilityType of(String probabilityAsText) {
-        switch (probabilityAsText) {
-            case "Risky" -> {
-                return ProbabilityType.RISKY;
-            }
-            case "Gamble" -> {
-                return ProbabilityType.GAMBLE;
-            }
-            case "Hmm...." -> {
-                return ProbabilityType.HMM;
-            }
-            case "Playing with fire" -> {
-                return ProbabilityType.PLAYING_WITH_FIRE;
-            }
-            case "Walk in the park" -> {
-                return ProbabilityType.WALK_IN_PARK;
-            }
-            case "Quite likely" -> {
-                return ProbabilityType.QUITE_LIKELY;
-            }
-            case "Sure thing" -> {
-                return ProbabilityType.SURE_THING;
-            }
-            case "Piece of cake" -> {
-                return ProbabilityType.PIECE_OF_CAKE;
-            }
-            default -> {
-                return ProbabilityType.IMPOSSIBLE;
-            }
-        }
+        return Arrays.stream(ProbabilityType.values())
+                .filter(p -> p.probability.equals(probabilityAsText))
+                .findFirst()
+                .orElse(ProbabilityType.IMPOSSIBLE);
     }
 }
